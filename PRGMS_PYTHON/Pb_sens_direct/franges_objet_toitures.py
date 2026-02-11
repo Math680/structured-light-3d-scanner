@@ -139,7 +139,7 @@ for k in range (N):
     Im = np.dstack((r,g,b))
     del ima
     #enregistrement
-    A = 'Pronto-Imageur-3D/.gitignore/img/It' + str(k+1) + '.bmp' 
+    A = 'Pronto-Imageur-3D/img/It' + str(k+1) + '.bmp' 
     io.imsave(A,Im)
     # plt.figure(k)
     # io.imshow(Im)
