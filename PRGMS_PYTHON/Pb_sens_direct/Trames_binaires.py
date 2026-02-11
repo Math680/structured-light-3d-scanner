@@ -15,7 +15,7 @@ from skimage import io
 
 # Définition du nombre de trames
 N = 5
-f = open('N.txt', 'w')
+f = open('Pronto-Imageur-3D/stockage/N.txt', 'w')
 f.write('%d' % N)
 f.close()
     
@@ -23,7 +23,7 @@ f.close()
 #Taille en pixel
 NbHE = 1280; #sur horizontal
 NbVE = 800;  #sur vertical
-f = open('NbHE.txt', 'w')
+f = open('Pronto-Imageur-3D/stockage/NbHE.txt', 'w')
 f.write('%d' % NbHE)
 f.close()
     
@@ -33,8 +33,8 @@ y = linspace(0,NbVE-1,NbVE)
 #Coordonnées matricielles des pts mE du LCD
 vE,uE = np.meshgrid(x,y)
 
-savetxt('uE.txt',uE, fmt='%-7.0f')
-savetxt('vE.txt',vE, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/uE.txt',uE, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/vE.txt',vE, fmt='%-7.0f')
     
 B = zeros((NbVE,NbHE), dtype = np.uint8)
 
@@ -49,7 +49,7 @@ for k in range(N):
     B = np.dstack((r,g,b))
     B = uint8(B)
     #enregistrement
-    A = 'Trame' + str(k+1) + '.bmp'
+    A = 'Pronto-Imageur-3D/img/Trame' + str(k+1) + '.bmp'
     io.imsave(A,B)    
     # # Affichage
     # #Décommenter pour afficher les figures Trames (pcolor augmente le temps d'execution du prgm)

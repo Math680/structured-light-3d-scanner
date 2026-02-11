@@ -21,9 +21,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Chargement de l'objet simulé dans repère Objet (O,X,Y,Z)
-X = loadtxt('X.txt')
-Y = loadtxt('Y.txt')
-Z = loadtxt('Z.txt')
+X = loadtxt('Pronto-Imageur-3D/stockage/X.txt')
+Y = loadtxt('Pronto-Imageur-3D/stockage/Y.txt')
+Z = loadtxt('Pronto-Imageur-3D/stockage/Z.txt')
 
 # Chargement de l'objet simulé dans repère Objet (O,X,Y,Z)
 # X = loadtxt('X_toiture.txt')
@@ -40,7 +40,7 @@ Z = loadtxt('Z.txt')
 
 
 #Chargement nombre de trame
-N = loadtxt('N.txt')
+N = loadtxt('Pronto-Imageur-3D/stockage/N.txt')
 N = int(N)
 #--------- Paramètres CCD -------------
 #Taille CCD (pixel)
@@ -62,11 +62,11 @@ uRzoomvect = linspace(0,zoom-1,zoom) # linspace(0,1299,1300)
 vRzoomvect = linspace(0,NbVR-1,NbVR)
 
 
-savetxt('uRzoomvect.txt', uRzoomvect, fmt='%-7.0f')
-savetxt('vRzoomvect.txt', vRzoomvect,fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/uRzoomvect.txt', uRzoomvect, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/vRzoomvect.txt', vRzoomvect,fmt='%-7.0f')
 [vRzoom,uRzoom] = meshgrid(uRzoomvect,vRzoomvect)
-savetxt('uRzoom.txt', uRzoom, fmt='%-7.0f')
-savetxt('vRzoom.txt', vRzoom, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/uRzoom.txt', uRzoom, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/vRzoom.txt', vRzoom, fmt='%-7.0f')
 
 #---------- Matrice de projection perspective récepteur MR ------------
 #Angles du dispositif
@@ -123,7 +123,7 @@ AR = concatenate((RRTR, intermed),axis=0)
 
 #Matrice MR
 MR = ICR.dot(AR)
-savetxt('MR.txt', MR, fmt='%-7.9f')
+savetxt('Pronto-Imageur-3D/stockage/MR.txt', MR, fmt='%-7.9f')
 
  #--------- Projection sur récepteur ------------
 sRuR1 = MR[0,0]*X + MR[0,1]*Y + MR[0,2]*Z + MR[0,3]
@@ -147,7 +147,7 @@ vR1 = sRvR1/sR
 del sRuR1, sRvR1, sR, X, Y, Z   
 for k in range (N):
     #------ Chargement des images d'intensité I de l'objet ---
-    Nom='I' + str(k+1) + '.bmp'    
+    Nom='Pronto-Imageur-3D/img/I' + str(k+1) + '.bmp'    
     ima = io.imread(Nom)
     
     #Calcul de l'inage de réception IR
@@ -165,7 +165,7 @@ for k in range (N):
     IR = np.dstack((r,g,b))
     del ima
     #enregistrement
-    A = 'IRZoom' + str(k+1) + '.bmp'    
+    A = 'Pronto-Imageur-3D/img/IRZoom' + str(k+1) + '.bmp'    
     IRzoom = IR[:,0:zoom]# IR[:,:]
     io.imsave(A,IRzoom)
     

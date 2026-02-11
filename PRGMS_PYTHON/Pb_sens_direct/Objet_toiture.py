@@ -55,9 +55,9 @@ Z[mask_p3] = 75 * (1 + Y[mask_p3] / 200)
 mask_p4 = inside_rect & (Y < -X - 100) & (Y > X + 100)
 Z[mask_p4] = 112.5 * (1 + X[mask_p4] / 300)
 #Enregistrement des coordonnées matricelles objet
-savetxt('Xt.txt', X, fmt='%-7.6f')   
-savetxt('Yt.txt', Y, fmt='%-7.6f')
-savetxt('Zt.txt', Z, fmt='%-7.6f')  
+savetxt('Pronto-Imageur-3D/stockage/Xt.txt', X, fmt='%-7.6f')   
+savetxt('Pronto-Imageur-3D/stockage/Yt.txt', Y, fmt='%-7.6f')
+savetxt('Pronto-Imageur-3D/stockage/Zt.txt', Z, fmt='%-7.6f')  
 
 
 #************************************************************************
@@ -71,5 +71,5 @@ plt.title('Zt (mm) - Objet bouclier simulé')
 # set the limits of the plot to the limits of the data
 plt.axis([X.min(), X.max(), Y.min(), Y.max()])
 plt.colorbar()
-plt.savefig("Objet_toiture.png")
+plt.savefig("Pronto-Imageur-3D/img/Objet_toiture.png")
 print(time.process_time() - start_time, "seconds")  # fin mesure temps d'éxecusion

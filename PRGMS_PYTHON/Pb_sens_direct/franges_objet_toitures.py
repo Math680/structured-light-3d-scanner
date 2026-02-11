@@ -22,9 +22,9 @@ from scipy.interpolate import griddata
 from skimage import io
 
 #Chargement de l'objet simulé dans repère Objet (O,X,Y,Z)
-X = loadtxt('Xt.txt')
-Y = loadtxt('Yt.txt')
-Z = loadtxt('Zt.txt')
+X = loadtxt('Pronto-Imageur-3D/stockage/Xt.txt')
+Y = loadtxt('Pronto-Imageur-3D/stotckage/Yt.txt')
+Z = loadtxt('Pronto-Imageur-3D/stotckage/Zt.txt')
 
 # X = loadtxt('X_toiture.txt')
 # Y = loadtxt('Y_toiture.txt')
@@ -35,11 +35,11 @@ Z = loadtxt('Zt.txt')
 # Z = loadtxt('Z_plan.txt')
 
 #Chargement nombre de trame
-N = loadtxt("N.txt")
+N = loadtxt("Pronto-Imageur-3D/stotckage/N.txt")
 N = int(N)
 #Chargement coordonnées LCD
-uE = loadtxt('uE.txt')
-vE = loadtxt('vE.txt')
+uE = loadtxt('Pronto-Imageur-3D/stotckage/uE.txt')
+vE = loadtxt('Pronto-Imageur-3D/stotckage/vE.txt')
 
 #taille LCD
 NbVE = size(uE[:,0])
@@ -52,7 +52,7 @@ beta_d = 85 #[°]
 alpha = alpha_d*pi/180 #[rad]
 beta = beta_d*pi/180 #[rad]
 
-np.savetxt('anglest.txt', (alpha_d, beta_d), fmt='%1.16e')
+np.savetxt('Pronto-Imageur-3D/stotckage/anglest.txt', (alpha_d, beta_d), fmt='%1.16e')
 
 phiE = -pi/2 
 thetaE = pi/2 + (alpha + beta)/2 
@@ -107,13 +107,13 @@ AE = concatenate((RETE, intermed),axis=0)
 
 #Matrice ME
 ME = ICE.dot(AE)
-np.savetxt('MEt.txt', ME, fmt='%-7.9f')
+np.savetxt('Pronto-Imageur-3D/stotckage/MEt.txt', ME, fmt='%-7.9f')
 
 
 #------ Calcul des images de franges objet pour les N trames ------
 for k in range (N):
     #------ Chargement des images d'intensité IE du LCD ---
-    Nomtrame='Trame' + str(k+1) + '.bmp'
+    Nomtrame='Pronto-Imageur-3D/img/Trame' + str(k+1) + '.bmp'
     ima = io.imread(Nomtrame)
 
     #Projection émetteur
@@ -139,7 +139,7 @@ for k in range (N):
     Im = np.dstack((r,g,b))
     del ima
     #enregistrement
-    A = 'It' + str(k+1) + '.bmp' 
+    A = 'Pronto-Imageur-3D/img/It' + str(k+1) + '.bmp' 
     io.imsave(A,Im)
     # plt.figure(k)
     # io.imshow(Im)
