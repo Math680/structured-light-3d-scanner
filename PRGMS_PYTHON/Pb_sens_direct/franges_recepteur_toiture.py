@@ -62,11 +62,11 @@ uRzoomvect = linspace(0,zoom-1,zoom) # linspace(0,1299,1300)
 vRzoomvect = linspace(0,NbVR-1,NbVR)
 
 
-savetxt('uRzoomvect.txt', uRzoomvect, fmt='%-7.0f')
-savetxt('vRzoomvect.txt', vRzoomvect,fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/uRzoomvect.txt', uRzoomvect, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/vRzoomvect.txt', vRzoomvect,fmt='%-7.0f')
 [vRzoom,uRzoom] = meshgrid(uRzoomvect,vRzoomvect)
-savetxt('uRzoom.txt', uRzoom, fmt='%-7.0f')
-savetxt('vRzoom.txt', vRzoom, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/uRzoom.txt', uRzoom, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/vRzoom.txt', vRzoom, fmt='%-7.0f')
 
 #---------- Matrice de projection perspective récepteur MR ------------
 #Angles du dispositif
@@ -143,42 +143,48 @@ vR1 = sRvR1/sR
 # X = None
 # Y = None
 # Z= None
-from pathlib import Path
-del sRuR1, sRvR1, sR, X, Y, Z   
-for k in range (N):
-    #------ Chargement des images d'intensité I de l'objet ---
-    Nom='Pronto-Imageur-3D/img/It' + str(k+1) + '.bmp'    
-    ima = io.imread(str(Nom))
-    ima = io.imread(Nom)
+from scipy.spatial import Delaunay
 
-    # Nom doit être une chaîne ou Path pointant vers l'image
-    Nom = Path(Nom)
-    print("Répertoire courant:", Path.cwd())
-    print("Fichier recherché:", Nom)
+# points source
+points = np.column_stack((uR1.ravel(), vR1.ravel()))
 
-    if not Nom.exists():
-        raise FileNotFoundError(f"Fichier introuvable: {Nom} — mettez le bon chemin ou déplacez l'image")
+# triangulation UNE FOIS
+tri = Delaunay(points)
 
-    
-    
-    #Calcul de l'inage de réception IR
-    # on utilise "interpolate.griddata" à la place de "ndimage.map_coordinates" car vR1 et uR1 
-    # pas directement issus d'un "meshgrid" - Cette fonction est plus lente que map_coordinates, il faut compter 10s par image
-   
-    #Détermination de l'image projetée dans rep Objet
-    r = griddata((uR1.flatten(),vR1.flatten()),ima[:,:,0].flatten(),(uR,vR), method='linear')#.astype(np.uint8)
-    # Remplace tous les NaN par des 0
-    r[isnan(r)] = 0
-    r = r.astype(np.uint8)
-    g = r*0
-    b = r*0
+# points de requête
+query_points = np.column_stack((uR.ravel(), vR.ravel()))
 
-    IR = np.dstack((r,g,b))
-    del ima
-    #enregistrement
-    A = 'Pronto-Imageur-3D/img/IRZoomt' + str(k+1) + '.bmp'    
-    IRzoom = IR[:,0:zoom]# IR[:,:]
-    io.imsave(A,IRzoom)
+# localisation des simplexes
+simplices = tri.find_simplex(query_points)
+
+# transformation barycentrique
+X = tri.transform[simplices, :2]
+Y = query_points - tri.transform[simplices, 2]
+bary = np.einsum('ijk,ik->ij', X, Y)
+weights = np.c_[bary, 1 - bary.sum(axis=1)]
+
+# indices des sommets
+vertices = tri.simplices[simplices]
+
+
+for k in range(N):
+    ima = io.imread(f'Pronto-Imageur-3D/img/It{k+1}.bmp')
+    values = ima[:,:,0].ravel()
+
+    r = np.zeros(len(query_points), dtype=np.float32)
+
+    mask = simplices >= 0  # points dans l'enveloppe convexe
+    r[mask] = np.sum(values[vertices[mask]] * weights[mask], axis=1)
+
+    r = r.reshape(uR.shape).astype(np.uint8)
+
+    IRzoom = np.zeros((NbVR, zoom, 3), dtype=np.uint8)
+    IRzoom[:,:,0] = r[:, :zoom]
+
+    io.imsave(f'Pronto-Imageur-3D/img/IRZoomt{k+1}.bmp',
+              IRzoom, check_contrast=False)
+
+    del ima, values, r, IRzoom
     
     # plt.figure(k)
     # io.imshow(IRzoom)
@@ -192,5 +198,4 @@ for k in range (N):
     # A = None
     # IRzoom = None
     # IR = None    
-    del IR, IRzoom, r, g, b
 print(time.process_time() - start_time, "seconds")  # fin mesure temps d'éxecusion
