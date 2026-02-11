@@ -16,15 +16,15 @@ import numpy as np
 from numpy import loadtxt, zeros, ones
 
 #Chargement nombre d'image
-N = loadtxt('N.txt', np.int32)
+N = loadtxt('Pronto-Imageur-3D/stockage/N.txt', np.int32)
 
 #Chargement abscisses et ordonnées récepteur zoom
-uRzoomvect = loadtxt('uRzoomvect.txt')
-vRzoomvect = loadtxt('vRzoomvect.txt')
+uRzoomvect = loadtxt('Pronto-Imageur-3D/stockage/uRzoomvect.txt')
+vRzoomvect = loadtxt('Pronto-Imageur-3D/stockage/vRzoomvect.txt')
 
 #Chargement abscisses et ordonnées récepteur zoom
-uRzoom = loadtxt('uRzoom.txt')
-vRzoom = loadtxt('vRzoom.txt')
+uRzoom = loadtxt('Pronto-Imageur-3D/stockage/uRzoom.txt')
+vRzoom = loadtxt('Pronto-Imageur-3D/stockage/vRzoom.txt')
 NbVRzoom = len(uRzoomvect)
 NbHRzoom = len(vRzoomvect)
 
@@ -43,7 +43,7 @@ IRzoom = zeros((i,j,N))
 #On charge les images IRZoom et on les binarises
 for k in range (0,N):
     #------ Chargement des images d'intensité IRZoom de l'objet dans le repere recepteur ---  
-    Nom = 'IRZoom' + str(k+1) + '.bmp'
+    Nom = 'Pronto-Imageur-3D/stockage/IRZoom' + str(k+1) + '.bmp'
     img = io.imread(Nom)
     # Seuillage de l'image
     threshold = 125

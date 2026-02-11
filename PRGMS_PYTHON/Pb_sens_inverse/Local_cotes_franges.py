@@ -18,14 +18,14 @@ import numpy as np
 from numpy import loadtxt, empty, zeros, ones, savetxt
 
 #Chargement nombre d'image
-N = loadtxt('N.txt', np.int32)
+N = loadtxt('Pronto-Imageur-3D/stockage/N.txt', np.int32)
 #Chargement abscisses et ordonnées récepteur zoom
-uRzoomvect = loadtxt('uRzoomvect.txt')
-vRzoomvect = loadtxt('vRzoomvect.txt')
+uRzoomvect = loadtxt('Pronto-Imageur-3D/stockage/uRzoomvect.txt')
+vRzoomvect = loadtxt('Pronto-Imageur-3D/stockage/vRzoomvect.txt')
 
 #Chargement abscisses et ordonnées récepteur zoom
-uRzoom = loadtxt('uRzoom.txt')
-vRzoom = loadtxt('vRzoom.txt')
+uRzoom = loadtxt('Pronto-Imageur-3D/stockage/uRzoom.txt')
+vRzoom = loadtxt('Pronto-Imageur-3D/stockage/vRzoom.txt')
 
 #Taille récepteur zoom
 NbVRzoom = len(uRzoomvect)
@@ -42,7 +42,7 @@ threshold = 100
 # chargement de l'image puis binarisation 
 for k in range (N):
     #------ Chargement des images d'intensité IRZoom de l'objet dans le repere recepteur ---  
-    Nom = f'IRZoom{str(k + 1)}.bmp'
+    Nom = f'Pronto-Imageur-3D/stockage/IRZoom{str(k + 1)}.bmp'
     img = io.imread(Nom)
     idx = img[:,:,0] > threshold
     img[idx,0] = 255
@@ -99,10 +99,10 @@ for C in range (1,2**N+1,2):
             PosiDroite[i,aD] = C + 1
 
 #Enregistrement 
-savetxt('PosiGauche.txt', PosiGauche, fmt='%-7.0f')
-savetxt('PosiDroite.txt', PosiDroite, fmt='%-7.0f')
-savetxt('Posiglobal.txt', Posiglobal, fmt='%-7.0f')
-savetxt('LC_num.txt', LC_num, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/PosiGauche.txt', PosiGauche, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/PosiDroite.txt', PosiDroite, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/Posiglobal.txt', Posiglobal, fmt='%-7.0f')
+savetxt('Pronto-Imageur-3D/stockage/LC_num.txt', LC_num, fmt='%-7.0f')
 
 #Inversion de contraste pour l'affichage
 InvPosiglobal=1.-Posiglobal
@@ -111,7 +111,7 @@ InvPosiglobal=1.-Posiglobal
 couleur_cotes = np.asarray([255,255,255])  #Blanc intensitee maximale
 B = zeros((NbHRzoom,NbVRzoom,3))
 
-A = 'Cotes_franges.bmp'
+A = 'Pronto-Imageur-3D/stockage/Cotes_franges.bmp'
 B[:,:,0] = couleur_cotes[0]*InvPosiglobal
 B[:,:,1] = couleur_cotes[1]*InvPosiglobal
 B[:,:,2] = couleur_cotes[2]*InvPosiglobal

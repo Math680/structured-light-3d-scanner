@@ -24,7 +24,7 @@ from skimage import io
 from scipy import ndimage
 
 #Chargement des angles du dispositif
-[alpha_d,beta_d] = loadtxt('angles.txt')
+[alpha_d,beta_d] = loadtxt('Pronto-Imageur-3D/stockage/angles.txt')
 
 #-------- Creation de l'objet de calibration -----------------------------
 #Nb pixel Objet (échantillonnage simulation)
@@ -115,7 +115,7 @@ AE = concatenate((RETE, intermed),axis=0)
 
 #Matrice ME
 ME = ICE.dot(AE)
-np.savetxt('ME.txt', ME, fmt='%-7.9f')
+np.savetxt('Pronto-Imageur-3D/stockage/ME.txt', ME, fmt='%-7.9f')
 
 
 #---------- Matrice de projection perspective récepteur MR ------------
@@ -178,7 +178,7 @@ MR = ICR.dot(AR)
 
 #------------- Image de la mire projetee sur l'objet  -------------
 #------ Chargement des images d'intensite IE du LCD ---
-Nom = 'Mire_damier.bmp'    
+Nom = 'Pronto-Imageur-3D/stockage/Mire_damier.bmp'    
 ima = io.imread(Nom)
 ima = ima[:, :, 0]
 IdE = (ima/255)#matrice numeric normalisee
@@ -217,7 +217,7 @@ B = None
 
 #Intensite mire damier objet
 
-A = "Id.bmp"
+A = "Pronto-Imageur-3D/stockage/Id.bmp"
 r = 255*Id    
 g = 0*Id
 b = 0*Id
@@ -259,7 +259,7 @@ A = None
 B = None
 
 #Intensite mire damier objet
-A = "IdR_calibemet.bmp"
+A = "Pronto-Imageur-3D/stockage/IdR_calibemet.bmp"
 # A = "IdR100_calibemet.bmp"
 r = 255*IdR    
 g = 0*IdR

@@ -37,8 +37,8 @@ yy = linspace(0, NbVE - 1, NbVE)
     
 #Coordonnées matricielles des pts mE du LCD
 vE,uE = np.meshgrid(xx,yy)
-savetxt('uE.txt', uE, fmt='%-7.7f')
-savetxt('vE.txt', vE, fmt='%-7.7f')
+savetxt('Pronto-Imageur-3D/stockage/uE.txt', uE, fmt='%-7.7f')
+savetxt('Pronto-Imageur-3D/stockage/vE.txt', vE, fmt='%-7.7f')
 
 
 #Création de la mire damier
@@ -47,7 +47,7 @@ B = zeros((NbVE,NbHE), dtype = float)
 IdE = 1*((sin(uE*q*pi/NbVE)*sin(vE*p*pi/NbHE)) < 0)
 
 #Enregistrement
-A = "Mire_damier.bmp"
+A = "Pronto-Imageur-3D/stockage/Mire_damier.bmp"
 r = 255*IdE   
 g = 0*IdE
 b = 0*IdE
