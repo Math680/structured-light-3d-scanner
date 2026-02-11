@@ -36,7 +36,7 @@ Z = loadtxt('Pronto-Imageur-3D/stockage/Z.txt')
 # Z = loadtxt('Z_plan.txt')
 
 #Chargement des angles du dispositif
-[alpha_d,beta_d] = loadtxt('angles.txt')
+[alpha_d,beta_d] = loadtxt('Pronto-Imageur-3D/stockage/angles.txt')
 
 
 #Chargement nombre de trame
