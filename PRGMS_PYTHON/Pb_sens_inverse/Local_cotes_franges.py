@@ -42,7 +42,7 @@ threshold = 100
 # chargement de l'image puis binarisation 
 for k in range (N):
     #------ Chargement des images d'intensité IRZoom de l'objet dans le repere recepteur ---  
-    Nom = f'Pronto-Imageur-3D/stockage/IRZoom{str(k + 1)}.bmp'
+    Nom = f'Pronto-Imageur-3D/img/IRZoom{str(k + 1)}.bmp'
     img = io.imread(Nom)
     idx = img[:,:,0] > threshold
     img[idx,0] = 255
@@ -111,7 +111,7 @@ InvPosiglobal=1.-Posiglobal
 couleur_cotes = np.asarray([255,255,255])  #Blanc intensitee maximale
 B = zeros((NbHRzoom,NbVRzoom,3))
 
-A = 'Pronto-Imageur-3D/stockage/Cotes_franges.bmp'
+A = 'Pronto-Imageur-3D/img/Cotes_franges.bmp'
 B[:,:,0] = couleur_cotes[0]*InvPosiglobal
 B[:,:,1] = couleur_cotes[1]*InvPosiglobal
 B[:,:,2] = couleur_cotes[2]*InvPosiglobal

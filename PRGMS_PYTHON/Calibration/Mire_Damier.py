@@ -47,7 +47,7 @@ B = zeros((NbVE,NbHE), dtype = float)
 IdE = 1*((sin(uE*q*pi/NbVE)*sin(vE*p*pi/NbHE)) < 0)
 
 #Enregistrement
-A = "Pronto-Imageur-3D/stockage/Mire_damier.bmp"
+A = "Pronto-Imageur-3D/img/Mire_damier.bmp"
 r = 255*IdE   
 g = 0*IdE
 b = 0*IdE

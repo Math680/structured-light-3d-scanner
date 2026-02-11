@@ -49,7 +49,7 @@ IdO = 1*(sin(X*p*pi/LX)*(sin(Y*q*pi/LY))>0) #Seuil sur multiplication sinus
 
 
 #Enregistrement de l'image Mire_damier_objet
-A = "Pronto-Imageur-3D/stockage/Mire_damier_objet.bmp"
+A = "Pronto-Imageur-3D/img/Mire_damier_objet.bmp"
 r0 = 255*IdO   
 g0 = 0*IdO
 b0 = 0*IdO
@@ -232,7 +232,7 @@ B = None
 
 ##Intensite mire damier objet
 
-A = "Pronto-Imageur-3D/stockageIdR.bmp"
+A = "Pronto-Imageur-3D/img/IdR.bmp"
 # A = "IdR100.bmp"
 r = 255*IdR   
 g = 0*IdR
