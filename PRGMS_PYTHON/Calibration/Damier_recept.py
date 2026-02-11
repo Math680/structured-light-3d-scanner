@@ -49,7 +49,7 @@ IdO = 1*(sin(X*p*pi/LX)*(sin(Y*q*pi/LY))>0) #Seuil sur multiplication sinus
 
 
 #Enregistrement de l'image Mire_damier_objet
-A = "Mire_damier_objet.bmp"
+A = "Pronto-Imageur-3D/img/Mire_damier_objet.bmp"
 r0 = 255*IdO   
 g0 = 0*IdO
 b0 = 0*IdO
@@ -75,7 +75,7 @@ beta_d = 85 #[°]
 alpha = alpha_d*pi/180 #[rad]
 beta = beta_d*pi/180 #[rad]
 
-np.savetxt('angles.txt', (alpha_d, beta_d), fmt='%1.16e')
+np.savetxt('Pronto-Imageur-3D/stockage/angles.txt', (alpha_d, beta_d), fmt='%1.16e')
 phiR = -pi/2 #[rad]
 thetaR = -pi/2-(alpha+beta)/2 #[rad]
 psiR = 0 #[rad]
@@ -129,7 +129,7 @@ AR = concatenate((RRTR, intermed),axis=0)
 
 #Matrice MR
 MR = ICR.dot(AR)
-np.savetxt('MR.txt', MR, fmt='%-7.9f')
+np.savetxt('Pronto-Imageur-3D/stockage/MR.txt', MR, fmt='%-7.9f')
 
 #----------------- Image de la mire projetee sur   ---------------
 #Projection abscisses et ordonnees Objet mire sur recepteur CCD
@@ -232,7 +232,7 @@ B = None
 
 ##Intensite mire damier objet
 
-A = "IdR.bmp"
+A = "Pronto-Imageur-3D/img/IdR.bmp"
 # A = "IdR100.bmp"
 r = 255*IdR   
 g = 0*IdR
