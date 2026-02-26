@@ -18,7 +18,6 @@ from numpy import loadtxt, size, sin, cos, pi, array, concatenate
 import matplotlib.pyplot as plt
 #On importe ndimage pour pouvoir utiliser la fonction d'interpolation map_coordinates
 from scipy.ndimage import map_coordinates
-from scipy.interpolate import griddata
 from skimage import io
 
 #Chargement de l'objet simulé dans repère Objet (O,X,Y,Z)
