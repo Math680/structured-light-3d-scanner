@@ -1,0 +1,10 @@
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\bin\Debug\ProntoUI.exe.config
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\bin\Debug\ProntoUI.exe
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\bin\Debug\ProntoUI.pdb
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.csproj.AssemblyReference.cache
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.Form1.resources
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.Properties.Resources.resources
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.csproj.GenerateResource.cache
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.csproj.CoreCompileInputs.cache
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.exe
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.pdb

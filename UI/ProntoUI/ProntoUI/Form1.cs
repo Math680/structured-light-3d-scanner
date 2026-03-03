@@ -21,5 +21,10 @@ namespace ProntoUI
         {
             
         }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            label1.Text = "N = " + trackBar1.Value;
+        }
     }
 }
