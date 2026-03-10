@@ -5,10 +5,12 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AForge.Video;
 using AForge.Video.DirectShow;
+using System.IO;
 
 namespace ProntoUI
 {
@@ -19,9 +21,16 @@ namespace ProntoUI
         private FilterInfoCollection _videoDevices;
         private VideoCaptureDevice _cam2;
 
+        private Bitmap _lastFrame;
+        private readonly object _frameLock = new object();
+
+        private Process _pythonProcess;
+
+
         public Form1()
         {
             InitializeComponent();
+
 
             // Important : démarrer/stopper selon l’onglet affiché
             tabControl1.SelectedIndexChanged += TabControl1_SelectedIndexChanged;
@@ -32,14 +41,77 @@ namespace ProntoUI
             // _videoDevices.Count => nombre de webcams détectées
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
-            
+            int delaySeconds = 3000; // par exemple
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = "python",
+                Arguments = "prgm/franges_fullscreen.py " + trackBar1.Value + " " + delaySeconds,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            _pythonProcess = new Process();
+            _pythonProcess.StartInfo = psi;
+
+            //_pythonProcess.OutputDataReceived += Python_OutputDataReceived;
+            //_pythonProcess.ErrorDataReceived += Python_ErrorDataReceived;
+
+            _pythonProcess.Start();
+            _pythonProcess.BeginOutputReadLine();
+            _pythonProcess.BeginErrorReadLine();
+
+
+            await Task.Delay(1500);
+
+
+            for (int i = 0; i < trackBar1.Value; i++)
+            {
+                Bitmap imageASauver = null;
+
+                lock (_frameLock)
+                {
+                    if (_lastFrame != null)
+                        imageASauver = (Bitmap)_lastFrame.Clone();
+                }
+
+                if (imageASauver == null)
+                {
+                    MessageBox.Show("Aucune image disponible.");
+                    return;
+                }
+
+                try
+                {
+                    string dossier = Path.Combine(Application.StartupPath, "captures", "1");
+                    Directory.CreateDirectory(dossier);
+
+
+                    string nomFichier = $"capture_{i+1}.png";
+                    string cheminComplet = Path.Combine(dossier, nomFichier);
+
+                    imageASauver.Save(cheminComplet, System.Drawing.Imaging.ImageFormat.Png);
+
+                    
+                }
+                finally
+                {
+                    imageASauver.Dispose();
+                }
+
+
+                await Task.Delay(delaySeconds);
+
+            }
         }
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            label1.Text = "N = " + trackBar1.Value;
+            label1.Text = "N = " + (trackBar1.Value);
         }
 
         private void trackBar2_Scroll(object sender, EventArgs e)
@@ -87,10 +159,17 @@ namespace ProntoUI
 
         private void Cam2_NewFrame(object sender, NewFrameEventArgs eventArgs)
         {
-            // AForge donne un Bitmap qu’il faut cloner (sinon il sera réutilisé)
+            // Clone de la frame reçue
             Bitmap frame = (Bitmap)eventArgs.Frame.Clone();
 
-            // Mise à jour UI => Invoke obligatoire
+            // On stocke une copie pour pouvoir l'enregistrer plus tard
+            lock (_frameLock)
+            {
+                _lastFrame?.Dispose();
+                _lastFrame = (Bitmap)frame.Clone();
+            }
+
+            // Mise à jour UI
             if (pictureBox1.IsHandleCreated)
             {
                 pictureBox1.BeginInvoke(new Action(() =>
@@ -119,10 +198,15 @@ namespace ProntoUI
 
             _cam2 = null;
 
-            // Nettoyer l’image affichée
             var old = pictureBox1.Image;
             pictureBox1.Image = null;
             old?.Dispose();
+
+            lock (_frameLock)
+            {
+                _lastFrame?.Dispose();
+                _lastFrame = null;
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -131,6 +215,11 @@ namespace ProntoUI
         }
 
         private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
         {
 
         }
