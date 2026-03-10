@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from skimage import io    
 
 # Définition du nombre de trames
-N = 5
+N = 8
 f = open('Pronto-Imageur-3D/stockage/N.txt', 'w')
 f.write('%d' % N)
 f.close()

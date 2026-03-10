@@ -43,7 +43,7 @@ IRzoom = zeros((i,j,N))
 #On charge les images IRZoom et on les binarises
 for k in range (0,N):
     #------ Chargement des images d'intensité IRZoom de l'objet dans le repere recepteur ---  
-    Nom = 'Pronto-Imageur-3D/img/IRZoom' + str(k+1) + '.bmp'
+    Nom = 'Pronto-Imageur-3D/img/IRZoomt' + str(k+1) + '.bmp'
     img = io.imread(Nom)
     # Seuillage de l'image
     threshold = 125

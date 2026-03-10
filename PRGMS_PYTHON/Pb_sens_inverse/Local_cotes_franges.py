@@ -42,7 +42,7 @@ threshold = 100
 # chargement de l'image puis binarisation 
 for k in range (N):
     #------ Chargement des images d'intensité IRZoom de l'objet dans le repere recepteur ---  
-    Nom = f'Pronto-Imageur-3D/img/IRZoom{str(k + 1)}.bmp'
+    Nom = f'Pronto-Imageur-3D/img/IRZoomt{str(k + 1)}.bmp'
     img = io.imread(Nom)
     idx = img[:,:,0] > threshold
     img[idx,0] = 255
