@@ -50,7 +50,7 @@ namespace ProntoUI
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(39, 44);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(149, 62);
             this.button1.TabIndex = 0;
@@ -61,7 +61,7 @@ namespace ProntoUI
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(39, 221);
-            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(149, 62);
             this.button2.TabIndex = 1;
@@ -71,7 +71,7 @@ namespace ProntoUI
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(39, 133);
-            this.button3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button3.Margin = new System.Windows.Forms.Padding(2);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(149, 62);
             this.button3.TabIndex = 2;
@@ -81,7 +81,7 @@ namespace ProntoUI
             // trackBar1
             // 
             this.trackBar1.Location = new System.Drawing.Point(39, 333);
-            this.trackBar1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.trackBar1.Margin = new System.Windows.Forms.Padding(2);
             this.trackBar1.Maximum = 12;
             this.trackBar1.Minimum = 3;
             this.trackBar1.Name = "trackBar1";
@@ -103,11 +103,11 @@ namespace ProntoUI
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.HotTrack = true;
             this.tabControl1.Location = new System.Drawing.Point(212, 20);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(2);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(874, 687);
@@ -116,9 +116,9 @@ namespace ProntoUI
             // tabPage1
             // 
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage1.Size = new System.Drawing.Size(866, 661);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Rendu3D";
@@ -128,9 +128,9 @@ namespace ProntoUI
             // 
             this.tabPage2.Controls.Add(this.pictureBox1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage2.Size = new System.Drawing.Size(866, 661);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Webcam";
@@ -140,7 +140,7 @@ namespace ProntoUI
             // 
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Location = new System.Drawing.Point(2, 2);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(862, 657);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -151,7 +151,7 @@ namespace ProntoUI
             // trackBar2
             // 
             this.trackBar2.Location = new System.Drawing.Point(39, 419);
-            this.trackBar2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.trackBar2.Margin = new System.Windows.Forms.Padding(2);
             this.trackBar2.Maximum = 100;
             this.trackBar2.Minimum = 1;
             this.trackBar2.Name = "trackBar2";
@@ -184,7 +184,7 @@ namespace ProntoUI
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "Imageur 3D | Pronto";
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();

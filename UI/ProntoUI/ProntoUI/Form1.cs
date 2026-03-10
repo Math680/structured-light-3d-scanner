@@ -107,6 +107,11 @@ namespace ProntoUI
                 await Task.Delay(delaySeconds);
 
             }
+
+            if (_pythonProcess != null && !_pythonProcess.HasExited)
+            {
+                _pythonProcess.Kill();
+            }
         }
 
         private void trackBar1_Scroll(object sender, EventArgs e)
