@@ -45,6 +45,7 @@ namespace ProntoUI
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
             label2.Text = "Contraste : " + trackBar2.Value;
+
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)

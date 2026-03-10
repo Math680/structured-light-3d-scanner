@@ -149,6 +149,7 @@ namespace ProntoUI
             this.trackBar2.Size = new System.Drawing.Size(199, 56);
             this.trackBar2.TabIndex = 6;
             this.trackBar2.Value = 50;
+            this.trackBar2.Scroll += new System.EventHandler(this.trackBar2_Scroll);
             // 
             // label2
             // 
