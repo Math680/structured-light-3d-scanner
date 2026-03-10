@@ -174,16 +174,28 @@ def main() -> int:
 
         if current_n < args.n and now >= next_change_at:
             current_n += 1
+            print("n:",current_n)
             next_change_at = now + frame_interval
 
         screen.blit(patterns[current_n], (0, 0))
         pygame.display.flip()
         force_borderless_fullscreen(window_handle, bounds)
-        clock.tick(120)
+        clock.tick(60)
+        for line in sys.stdin:
+            cmd = line.strip()
+
+            if cmd == "capture":
+                print("CAPTURE_OK", flush=True)
+
+            elif cmd == "quit":
+                print("Python s'arrête", flush=True)
+                break
 
 
 if __name__ == "__main__":
+    print("Python prêt", flush=True)
     try:
         raise SystemExit(main())
     finally:
         pygame.quit()
+
