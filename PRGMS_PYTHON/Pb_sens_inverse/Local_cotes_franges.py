@@ -37,19 +37,19 @@ Posiglobal = zeros((NbHRzoom,NbVRzoom))
 PosiGauche = zeros((NbHRzoom,NbVRzoom))
 PosiDroite = zeros((NbHRzoom,NbVRzoom))
 
-# Seuillage de l'image
-threshold = 100
-# chargement de l'image puis binarisation 
+# Dans la boucle de chargement des images :
 for k in range (N):
-    #------ Chargement des images d'intensité IRZoom de l'objet dans le repere recepteur ---  
     Nom = f'Pronto-Imageur-3D/img/IRZoomt{str(k + 1)}.bmp'
     img = io.imread(Nom)
-    idx = img[:,:,0] > threshold
-    img[idx,0] = 255
-    IRz = (img/255)
-    # On enregistre les IRzoom_1 2 3 ... dans IR_zoom
-    #IRz[:,:,0] = filters.median(IRz[:,:,0], disk(5))
-    IRzoom[:,:,k] = IRz[:,:,0]
+    gray = img[:,:,0]
+    
+    # CALCUL D'UN SEUIL AUTOMATIQUE
+    thresh_val = filters.threshold_otsu(gray) 
+    idx = gray > thresh_val
+    
+    IRz = zeros(gray.shape)
+    IRz[idx] = 1  # Binarisation propre
+    IRzoom[:,:,k] = IRz
 
 #Libération mémoire
 Nom = None
@@ -82,7 +82,7 @@ for C in range (1,2**N+1,2):
     del LClogic
     # IRzoom[:,:,l] = None
     # Filtrage médian sur les images des franges permet de nettoyer les petites imperfections
-    LC = filters.median(np.uint8(LC),disk(5))
+    LC = filters.median(np.uint8(LC),disk(1))
 
     for i in range (NbHRzoom): #NbHRzoom
         p0 = np.nonzero(LC[i,:] == 1)[0]

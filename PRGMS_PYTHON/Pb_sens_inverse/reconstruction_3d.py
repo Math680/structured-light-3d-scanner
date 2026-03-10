@@ -25,8 +25,7 @@ def reconstructor_3d():
         vR_grid = np.loadtxt(os.path.join(folder_stockage, "vRzoom.txt"))
         
         # Chargement des résultats de la détection de franges
-        PosiGauche = np.loadtxt(os.path.join(folder_stockage, "PosiGauche.txt"))
-        PosiDroite = np.loadtxt(os.path.join(folder_stockage, "PosiDroite.txt"))
+        PosiGlobal = np.loadtxt(os.path.join(folder_stockage, "Posiglobal.txt"))
         N = int(np.loadtxt(os.path.join(folder_stockage, "N.txt")))
         
         # Taille du projecteur (nécessaire pour vE)
@@ -42,13 +41,12 @@ def reconstructor_3d():
     # 3. Logique de Reconstruction
     # ==========================================
     points_3d = []
-    rows, cols = PosiGauche.shape
+    rows, cols = PosiGlobal.shape
 
     # On parcourt chaque pixel du récepteur
     for i in range(rows):
         for j in range(cols):
-            C = PosiGauche[i, j]
-            C2 = PosiDroite[i,j]
+            C = PosiGlobal[i, j]
             
             if C > 0:  # Si un bord de frange est présent
                 # 1. Récupérer les coordonnées uR, vR au pixel (i,j)
@@ -58,34 +56,6 @@ def reconstructor_3d():
                 # 2. Calculer la coordonnée vE correspondante sur l'émetteur
                 # Selon la méthode du code binaire : vE = (NbHE / 2^N) * C
                 vE = (NbHE / (2**N)) * C
-                
-                # 3. Construction du système G * X = H (Triangulation)
-                G = np.array([
-                    [MR[0,0] - uR*MR[2,0], MR[0,1] - uR*MR[2,1], MR[0,2] - uR*MR[2,2]],
-                    [MR[1,0] - vR*MR[2,0], MR[1,1] - vR*MR[2,1], MR[1,2] - vR*MR[2,2]],
-                    [ME[1,0] - vE*ME[2,0], ME[1,1] - vE*ME[2,1], ME[1,2] - vE*ME[2,2]]
-                ])
-                
-                H = np.array([
-                    uR*MR[2,3] - MR[0,3],
-                    vR*MR[2,3] - MR[1,3],
-                    vE*ME[2,3] - ME[1,3]
-                ])
-                
-                # 4. Résolution par moindres carrés
-                try:
-                    coord= np.linalg.lstsq(G, H, rcond=None)[0]
-                    points_3d.append(coord)
-                except np.linalg.LinAlgError:
-                    continue
-            if C2 > 0:  # Si un bord de frange est présent
-                # 1. Récupérer les coordonnées uR, vR au pixel (i,j)
-                uR = uR_grid[i, j]
-                vR = vR_grid[i, j]
-                
-                # 2. Calculer la coordonnée vE correspondante sur l'émetteur
-                # Selon la méthode du code binaire : vE = (NbHE / 2^N) * C
-                vE = (NbHE / (2**N)) * C2
                 
                 # 3. Construction du système G * X = H (Triangulation)
                 G = np.array([
