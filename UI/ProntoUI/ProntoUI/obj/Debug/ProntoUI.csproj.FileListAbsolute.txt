@@ -15,3 +15,4 @@ C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\bin
 C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\bin\Debug\AForge.Video.xml
 C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\bin\Debug\AForge.Video.DirectShow.xml
 C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.csproj.CopyComplete
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\bin\Debug\prgm\franges_fullscreen.py

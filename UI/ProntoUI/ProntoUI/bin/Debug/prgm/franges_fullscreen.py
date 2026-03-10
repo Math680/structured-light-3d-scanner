@@ -126,6 +126,10 @@ def build_pattern_surface(size: Tuple[int, int], n: int) -> pygame.Surface:
     return surface
 
 
+def emit_photo_trigger(index: int) -> None:
+    print(f"PHOTO_TRIGGER {index}", flush=True)
+
+
 def main() -> int:
     args = parse_args()
     if args.n < 1:
@@ -154,8 +158,10 @@ def main() -> int:
 
     clock = pygame.time.Clock()
     frame_interval = args.interval_ms / 1000.0
-    next_change_at = frame_interval
+    capture_delay = min(max(frame_interval * 0.5, 0.25), 0.6)
     current_n = 1
+    pattern_shown_at = None
+    trigger_sent_for = False
 
     patterns = {
         n: build_pattern_surface((bounds.width, bounds.height), n)
@@ -172,30 +178,30 @@ def main() -> int:
             if hasattr(pygame, "WINDOWFOCUSLOST") and event.type == pygame.WINDOWFOCUSLOST:
                 force_borderless_fullscreen(window_handle, bounds)
 
-        if current_n < args.n and now >= next_change_at:
-            current_n += 1
-            print("n:",current_n)
-            next_change_at = now + frame_interval
-
         screen.blit(patterns[current_n], (0, 0))
         pygame.display.flip()
         force_borderless_fullscreen(window_handle, bounds)
+
+        if pattern_shown_at is None:
+            pattern_shown_at = now
+
+        elapsed = now - pattern_shown_at
+
+        if not trigger_sent_for and elapsed >= capture_delay:
+            emit_photo_trigger(current_n)
+            trigger_sent_for = True
+
+        if elapsed >= frame_interval:
+            if current_n < args.n:
+                current_n += 1
+                pattern_shown_at = now
+                trigger_sent_for = False
+
         clock.tick(60)
-        for line in sys.stdin:
-            cmd = line.strip()
-
-            if cmd == "capture":
-                print("CAPTURE_OK", flush=True)
-
-            elif cmd == "quit":
-                print("Python s'arrête", flush=True)
-                break
 
 
 if __name__ == "__main__":
-    print("Python prêt", flush=True)
     try:
         raise SystemExit(main())
     finally:
         pygame.quit()
-
