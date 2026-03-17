@@ -29,6 +29,15 @@ namespace ProntoUI
         /// </summary>
         private void InitializeComponent()
         {
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fichierToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.nouveauProjetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ouvrirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enregistrerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enregistrerSousToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.quitterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.webcamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.parametresWebcamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -40,6 +49,7 @@ namespace ProntoUI
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
             this.label2 = new System.Windows.Forms.Label();
+            this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -47,9 +57,84 @@ namespace ProntoUI
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             this.SuspendLayout();
             // 
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fichierToolStripMenuItem,
+            this.ouvrirToolStripMenuItem,
+            this.enregistrerToolStripMenuItem,
+            this.enregistrerSousToolStripMenuItem,
+            this.quitterToolStripMenuItem,
+            this.webcamToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1642, 33);
+            this.menuStrip1.TabIndex = 8;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fichierToolStripMenuItem
+            // 
+            this.fichierToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.nouveauProjetToolStripMenuItem});
+            this.fichierToolStripMenuItem.Name = "fichierToolStripMenuItem";
+            this.fichierToolStripMenuItem.Size = new System.Drawing.Size(75, 29);
+            this.fichierToolStripMenuItem.Text = "Fichier";
+            // 
+            // nouveauProjetToolStripMenuItem
+            // 
+            this.nouveauProjetToolStripMenuItem.Name = "nouveauProjetToolStripMenuItem";
+            this.nouveauProjetToolStripMenuItem.Size = new System.Drawing.Size(220, 30);
+            this.nouveauProjetToolStripMenuItem.Text = "Nouveau";
+            this.nouveauProjetToolStripMenuItem.Click += new System.EventHandler(this.nouveauProjetToolStripMenuItem_Click);
+            // 
+            // ouvrirToolStripMenuItem
+            // 
+            this.ouvrirToolStripMenuItem.Name = "ouvrirToolStripMenuItem";
+            this.ouvrirToolStripMenuItem.Size = new System.Drawing.Size(77, 29);
+            this.ouvrirToolStripMenuItem.Text = "Ouvrir";
+            this.ouvrirToolStripMenuItem.Click += new System.EventHandler(this.ouvrirToolStripMenuItem_Click);
+            // 
+            // enregistrerToolStripMenuItem
+            // 
+            this.enregistrerToolStripMenuItem.Name = "enregistrerToolStripMenuItem";
+            this.enregistrerToolStripMenuItem.Size = new System.Drawing.Size(110, 29);
+            this.enregistrerToolStripMenuItem.Text = "Enregistrer";
+            this.enregistrerToolStripMenuItem.Click += new System.EventHandler(this.enregistrerToolStripMenuItem_Click);
+            // 
+            // enregistrerSousToolStripMenuItem
+            // 
+            this.enregistrerSousToolStripMenuItem.Name = "enregistrerSousToolStripMenuItem";
+            this.enregistrerSousToolStripMenuItem.Size = new System.Drawing.Size(148, 29);
+            this.enregistrerSousToolStripMenuItem.Text = "Enregistrer sous";
+            this.enregistrerSousToolStripMenuItem.Click += new System.EventHandler(this.enregistrerSousToolStripMenuItem_Click);
+            // 
+            // quitterToolStripMenuItem
+            // 
+            this.quitterToolStripMenuItem.Name = "quitterToolStripMenuItem";
+            this.quitterToolStripMenuItem.Size = new System.Drawing.Size(77, 29);
+            this.quitterToolStripMenuItem.Text = "Quitter";
+            this.quitterToolStripMenuItem.Click += new System.EventHandler(this.quitterToolStripMenuItem_Click);
+            // 
+            // webcamToolStripMenuItem
+            // 
+            this.webcamToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.parametresWebcamToolStripMenuItem});
+            this.webcamToolStripMenuItem.Name = "webcamToolStripMenuItem";
+            this.webcamToolStripMenuItem.Size = new System.Drawing.Size(92, 29);
+            this.webcamToolStripMenuItem.Text = "Webcam";
+            // 
+            // parametresWebcamToolStripMenuItem
+            // 
+            this.parametresWebcamToolStripMenuItem.Name = "parametresWebcamToolStripMenuItem";
+            this.parametresWebcamToolStripMenuItem.Size = new System.Drawing.Size(262, 30);
+            this.parametresWebcamToolStripMenuItem.Text = "Parametres webcam";
+            this.parametresWebcamToolStripMenuItem.Click += new System.EventHandler(this.parametresWebcamToolStripMenuItem_Click);
+            // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(58, 68);
+            this.button1.Location = new System.Drawing.Point(58, 93);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(224, 95);
             this.button1.TabIndex = 0;
@@ -59,7 +144,7 @@ namespace ProntoUI
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(58, 340);
+            this.button2.Location = new System.Drawing.Point(58, 365);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(224, 95);
             this.button2.TabIndex = 1;
@@ -68,7 +153,7 @@ namespace ProntoUI
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(58, 205);
+            this.button3.Location = new System.Drawing.Point(58, 230);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(224, 95);
             this.button3.TabIndex = 2;
@@ -78,7 +163,7 @@ namespace ProntoUI
             // 
             // trackBar1
             // 
-            this.trackBar1.Location = new System.Drawing.Point(58, 512);
+            this.trackBar1.Location = new System.Drawing.Point(58, 537);
             this.trackBar1.Maximum = 12;
             this.trackBar1.Minimum = 3;
             this.trackBar1.Name = "trackBar1";
@@ -90,7 +175,7 @@ namespace ProntoUI
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(147, 475);
+            this.label1.Location = new System.Drawing.Point(147, 500);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(46, 20);
             this.label1.TabIndex = 4;
@@ -102,7 +187,7 @@ namespace ProntoUI
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.HotTrack = true;
-            this.tabControl1.Location = new System.Drawing.Point(318, 31);
+            this.tabControl1.Location = new System.Drawing.Point(318, 56);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(1311, 1057);
@@ -142,7 +227,7 @@ namespace ProntoUI
             // 
             // trackBar2
             // 
-            this.trackBar2.Location = new System.Drawing.Point(58, 645);
+            this.trackBar2.Location = new System.Drawing.Point(58, 670);
             this.trackBar2.Maximum = 100;
             this.trackBar2.Minimum = 1;
             this.trackBar2.Name = "trackBar2";
@@ -154,7 +239,7 @@ namespace ProntoUI
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(118, 586);
+            this.label2.Location = new System.Drawing.Point(118, 611);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(109, 20);
             this.label2.TabIndex = 7;
@@ -166,6 +251,7 @@ namespace ProntoUI
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1642, 1118);
+            this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.trackBar2);
             this.Controls.Add(this.tabControl1);
@@ -174,8 +260,11 @@ namespace ProntoUI
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Imageur 3D | Pronto";
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
@@ -188,6 +277,15 @@ namespace ProntoUI
 
         #endregion
 
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fichierToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem nouveauProjetToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ouvrirToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem enregistrerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem enregistrerSousToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem quitterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem webcamToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem parametresWebcamToolStripMenuItem;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
