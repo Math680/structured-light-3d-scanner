@@ -118,6 +118,7 @@ try:
     # 3. Calcul final
     # Vérifiez que len(M_points_3d) == len(mR_points_2d) soit bien 42 ici
     MRN_finale = calculer_MRN(M_points_3d, mR_points_2d)
+    np.savetxt('Pronto-Imageur-3D/stockage/angles_exp.txt', MRN_finale,  fmt='%-7.9f')
     intrinsèques, angles = analyser_physique(MRN_finale)
 
     print("-" * 30)
@@ -130,6 +131,7 @@ try:
     print(f"Phi (Lacet)   : {angles[0]:.2f}°")
     print(f"Theta (Tangage): {angles[1]:.2f}°")
     print(f"Psi (Roulis)  : {angles[2]:.2f}°")
+    
 
 except Exception as e:
     print("Erreur lors de l'acquisition :", e)
