@@ -1,108 +1,135 @@
 import numpy as np
 import cv2
 
-def calibrate_camera_custom(pts_2d, pts_3d):
+def extraire_centroides(image_path, nb_points=21):
     """
-    Calcule la matrice de projection M via la méthode DLT (Eq. 30 & 31)
-    """
-    num_points = pts_2d.shape[0]
-    B = []
-
-    for i in range(num_points):
-        X, Y, Z = pts_3d[i]
-        u, v = pts_2d[i]
-        
-        # Construction des deux lignes de la matrice B pour chaque point (Eq. 30)
-        # Ligne pour u
-        B.append([X, Y, Z, 1, 0, 0, 0, 0, -u*X, -u*Y, -u*Z])
-        # Ligne pour v
-        B.append([0, 0, 0, 0, X, Y, Z, 1, -v*X, -v*Y, -v*Z])
-
-    B = np.array(B)
-    c = pts_2d.reshape(-1, 1) # Le vecteur des u1, v1, u2, v2...
-
-    # Résolution au sens des moindres carrés (Eq. 31)
-    # x = (B^T * B)^-1 * B^T * c
-    m_vector, residuals, rank, s = np.linalg.lstsq(B, c, rcond=None)
-    
-    # On ajoute le dernier coefficient m34 qui est normalisé à 1 (selon l'image)
-    m_vector = np.append(m_vector, [1.0])
-    
-    # Mise en forme de la matrice perspective 3x4
-    M_NR = m_vector.reshape((3, 4))
-    
-    return M_NR
-
-def extract_red_points(image_path):
-    """
-    Extrait les coordonnées des points rouges sur l'image
+    Détecte les taches rouges et renvoie les 21 centroïdes (u, v).
     """
     img = cv2.imread(image_path)
-    # Conversion en HSV pour mieux isoler le rouge
+    # Conversion en HSV pour mieux isoler la couleur
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     
-    # Masque pour le rouge (deux plages nécessaires car le rouge est aux extrémités du spectre)
+    # Masque pour le rouge (deux plages nécessaires dans l'espace HSV)
     lower_red1 = np.array([0, 100, 100])
     upper_red1 = np.array([10, 255, 255])
     lower_red2 = np.array([160, 100, 100])
     upper_red2 = np.array([180, 255, 255])
     
-    mask = cv2.bitwise_or(cv2.inRange(hsv, lower_red1, upper_red1),
-                          cv2.inRange(hsv, lower_red2, upper_red2))
-    
-    # Trouver les centres des points (centroids)
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
-    points = []
-    for cnt in contours:
-        M = cv2.moments(cnt)
-        if M["m00"] != 0:
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
-            points.append([cX, cY])
-    
-   
-    # Ici on trie par Y puis par X (balayage haut-bas, gauche-droite)
-    points = sorted(points, key=lambda p: (p[1], p[0]))
-    return np.array(points)
+    mask = cv2.addWeighted(cv2.inRange(hsv, lower_red1, upper_red1), 1.0, 
+                           cv2.inRange(hsv, lower_red2, upper_red2), 1.0, 0)
 
-# --- CONFIGURATION DES DONNÉES DE TEST ---
+    # Nettoyage du bruit
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((3,3), np.uint8))
 
-# 1. Simulation de points 3D (9 points à Z=0 et 9 points à Z=100)
-# Imaginons un carré de 3x3 points espacés de 50mm
-grid_3d = np.array([[x, y, 0] for y in [0, 50, 100] for x in [0, 50, 100]])
-pts_3d_z0 = grid_3d
-pts_3d_z100 = grid_3d.copy()
-pts_3d_z100[:, 2] = 100 
-pts_3d = np.vstack((pts_3d_z0, pts_3d_z100)) # Total 18 points
+    # Détection des composants connexes (clusters)
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask)
 
-# 2. Simulation de points 2D (À remplacer par l'extraction réelle)
-# Ici, je crée des points fictifs pour que le code tourne
-pts_2d = np.random.uniform(100, 500, (18, 2)) 
+    # On ignore le premier centroïde (le fond noir)
+    # On trie par taille de cluster pour garder les plus importants si besoin
+    clusters = centroids[1:]
+    
+    if len(clusters) < nb_points:
+        print(f"Attention : Seulement {len(clusters)} points trouvés.")
+    
+    # Tri des points pour correspondre à votre ordre Mi (souvent de haut en bas, gauche à droite)
+    # Ici, tri par Y puis par X
+    clusters = clusters[clusters[:, 1].argsort()]
+    
+    return clusters[:nb_points]
+
+def calculer_MRN(points_3d, points_2d):
+    """
+    Résout BR.x = c (Eq. 30 et 31)
+    """
+    n = len(points_3d)
+    B = np.zeros((2 * n, 11))
+    c = np.zeros((2 * n, 1))
+
+    for i in range(n):
+        Xi, Yi, Zi = points_3d[i]
+        ui, vi = points_2d[i]
+        
+        B[2*i]   = [Xi, Yi, Zi, 1, 0, 0, 0, 0, -ui*Xi, -ui*Yi, -ui*Zi]
+        c[2*i]   = ui
+        B[2*i+1] = [0, 0, 0, 0, Xi, Yi, Zi, 1, -vi*Xi, -vi*Yi, -vi*Zi]
+        c[2*i+1] = vi
+
+    # Résolution par pseudo-inverse : x = (Bt.B)^-1.Bt.c
+    Bt = B.T
+    xR = np.linalg.pinv(Bt @ B) @ Bt @ c
+    
+    # Reconstruction de la matrice 3x4 (m34 = 1)
+    MRN = np.append(xR, [1.0]).reshape(3, 4)
+    return MRN
+
+def analyser_physique(MRN):
+    # Extraction selon Eq. 28
+    m1R, m2R, m3R = MRN[0, :3], MRN[1, :3], MRN[2, :3]
+    m14R, m24R, m34R = MRN[0, 3], MRN[1, 3], MRN[2, 3]
+
+    u0R = np.dot(m1R, m3R)
+    v0R = np.dot(m2R, m3R)
+    alpha_uR = -np.linalg.norm(np.cross(m1R, m3R))
+    alpha_vR = np.linalg.norm(np.cross(m2R, m3R))
+
+    # Matrice de rotation RR
+    r1R = (1 / alpha_uR) * (m1R - u0R * m3R)
+    r2R = (1 / alpha_vR) * (m2R - v0R * m3R)
+    r3R = m3R
+    RR = np.vstack([r1R, r2R, r3R])
+
+    # Angles d'Euler (Degrés)
+    theta = np.degrees(np.arcsin(-RR[2, 0]))
+    psi = np.degrees(np.arctan2(RR[2, 1], RR[2, 2]))
+    phi = np.degrees(np.arctan2(RR[1, 0], RR[0, 0]))
+    np.savetxt('Pronto-Imageur-3D/stockage/angles_exp.txt', (phi, theta, psi), fmt='%1.16e')
+    
+    return (u0R, v0R, alpha_uR, alpha_vR), (phi, theta, psi)
 
 # --- EXÉCUTION ---
 
-# Dans votre cas réel : 
-# pts_2d = extract_red_points("votre_image.png")
+# 1. Vos points Mi (Xi, Yi, Zi) de l'image manuscrite
+M_points_3d = np.array([
+    [-0.47, 0.20625, 0], [-0.47, 0.06875, 0], [-0.47, -0.06875, 0], [-0.47, -0.20625, 0],
+    [-0.276, 0.20625, 0], [-0.276, 0.06875, 0], [-0.276, -0.06875, 0], [-0.276, -0.20625, 0],
+    [-0.092, 0.20625, 0], [-0.092, 0.06875, 0], [-0.092, -0.06875, 0], [-0.092, -0.20625, 0],
+    [0.092, 0.20625, 0], [0.092, 0.06875, 0], [0.092, -0.06875, 0], [0.092, -0.20625, 0],
+    [0.276, 0.20625, 0], [0.276, 0.06875, 0], [0.276, -0.06875, 0], [0.276, -0.20625, 0],
+    [0.368, 0, 0],
+    [-0.47, 0.20625, 0.1], [-0.47, 0.06875, 0.1], [-0.47, -0.06875, 0.1], [-0.47, -0.20625, 0.1],
+    [-0.276, 0.20625, 0.1], [-0.276, 0.06875, 0.1], [-0.276, -0.06875, 0.1], [-0.276, -0.20625, 0.1],
+    [-0.092, 0.20625, 0.1], [-0.092, 0.06875, 0.1], [-0.092, -0.06875, 0.1], [-0.092, -0.20625, 0.1],
+    [0.092, 0.20625, 0.1], [0.092, 0.06875, 0.1], [0.092, -0.06875, 0.1], [0.092, -0.20625, 0.1],
+    [0.276, 0.20625, 0.1], [0.276, 0.06875, 0.1], [0.276, -0.06875, 0.1], [0.276, -0.20625, 0.1],
+    [0.368, 0, 0.1],
+])
 
-M_final = calibrate_camera_custom(pts_2d, pts_3d)
+# 2. Extraction des points images (u, v) depuis votre fichier PNG
+# Remplacez 'votre_image.png' par votre fichier réel
+try:
+    # 1. Extraction des centroïdes pour chaque image
+    # Note : nb_points=21 car c'est ce que vous avez mis dans la définition
+    pts_2d_0 = extraire_centroides('Pronto-imageur-3D/img/damier0.jpg', nb_points=21)
+    pts_2d_100 = extraire_centroides('Pronto-imageur-3D/img/damier100.jpg', nb_points=21)
+    
+    # 2. Concaténation verticale des deux tableaux (pour obtenir un tableau de 42 points)
+    mR_points_2d = np.vstack((pts_2d_0, pts_2d_100))
+   
+    # 3. Calcul final
+    # Vérifiez que len(M_points_3d) == len(mR_points_2d) soit bien 42 ici
+    MRN_finale = calculer_MRN(M_points_3d, mR_points_2d)
+    intrinsèques, angles = analyser_physique(MRN_finale)
 
-print("Matrice Perspective M_NR calculée :")
-print(M_final)
+    print("-" * 30)
+    print("MATRICE MRN :\n", MRN_finale)
+    print("-" * 30)
+    print(f"Centre optique : u0={intrinsèques[0]:.2f}, v0={intrinsèques[1]:.2f}")
+    print(f"Focales (px)  : alpha_u={intrinsèques[2]:.2f}, alpha_v={intrinsèques[3]:.2f}")
+    print("-" * 30)
+    print(f"ANGLES D'ORIENTATION (Degrés) :")
+    print(f"Phi (Lacet)   : {angles[0]:.2f}°")
+    print(f"Theta (Tangage): {angles[1]:.2f}°")
+    print(f"Psi (Roulis)  : {angles[2]:.2f}°")
 
-# --- EXTRACTION DES PARAMÈTRES EXTRINSÈQUES ---
-# M = K [R | t]
-# On peut décomposer M en utilisant la décomposition QR sur les 3 premières colonnes
-A = M_final[:, :3]
-b = M_final[:, 3]
-
-# Décomposition QR pour obtenir la rotation et l'intrinsèque (simplifié)
-# Note : C'est une approximation si K est inconnu
-R, K_estime = np.linalg.qr(np.linalg.inv(A))
-R = np.linalg.inv(R)
-t = np.linalg.inv(K_estime) @ b
-
-print("\nRotation (R) estimée :")
-print(R)
-print("\nVecteur de translation (t) estimé :")
-print(t)
+except Exception as e:
+    print("Erreur lors de l'acquisition :", e)
