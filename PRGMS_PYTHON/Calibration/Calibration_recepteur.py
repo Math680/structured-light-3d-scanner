@@ -2,40 +2,56 @@ import numpy as np
 import cv2
 
 def extraire_centroides(image_path, nb_points=21):
-    """
-    Détecte les taches rouges et renvoie les 21 centroïdes (u, v).
-    """
     img = cv2.imread(image_path)
-    # Conversion en HSV pour mieux isoler la couleur
+    if img is None: return []
+
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     
-    # Masque pour le rouge (deux plages nécessaires dans l'espace HSV)
-    lower_red1 = np.array([0, 100, 100])
-    upper_red1 = np.array([10, 255, 255])
-    lower_red2 = np.array([160, 100, 100])
-    upper_red2 = np.array([180, 255, 255])
-    
+    # Masques rouges
+    lower_red1, upper_red1 = np.array([0, 100, 100]), np.array([10, 255, 255])
+    lower_red2, upper_red2 = np.array([160, 100, 100]), np.array([180, 255, 255])
     mask = cv2.addWeighted(cv2.inRange(hsv, lower_red1, upper_red1), 1.0, 
                            cv2.inRange(hsv, lower_red2, upper_red2), 1.0, 0)
 
-    # Nettoyage du bruit
+    # Nettoyage morphologique
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((3,3), np.uint8))
 
-    # Détection des composants connexes (clusters)
+    # Détection des clusters
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask)
 
-    # On ignore le premier centroïde (le fond noir)
-    # On trie par taille de cluster pour garder les plus importants si besoin
-    clusters = centroids[1:]
+    # 1. On récupère tous les centroïdes (sauf le fond)
+    tous_les_centroides = centroids[1:]
     
-    if len(clusters) < nb_points:
-        print(f"Attention : Seulement {len(clusters)} points trouvés.")
+    # 2. FILTRAGE DES POINTS TROP PROCHES
+    # On définit un rayon de sécurité (ex: 20 pixels). 
+    # Si deux détections sont plus proches que ça, c'est la même pastille.
+    rayon_securite = 20 
+    points_filtres = []
+
+    if len(tous_les_centroides) > 0:
+        # On trie par aire (stats) pour garder le "vrai" centre si possible, 
+        # ou simplement on parcourt
+        for c in tous_les_centroides:
+            est_trop_proche = False
+            for pf in points_filtres:
+                dist = np.linalg.norm(c - pf)
+                if dist < rayon_securite:
+                    est_trop_proche = True
+                    break
+            
+            if not est_trop_proche:
+                points_filtres.append(c)
+
+    points_filtres = np.array(points_filtres)
+
+    # 3. Tri final (Y puis X) pour correspondre à ton tableau M_points_3d
+    # Note : Le tri est crucial pour que le point en haut à gauche soit bien le premier.
+    points_filtres = points_filtres[points_filtres[:, 1].argsort()]
     
-    # Tri des points pour correspondre à votre ordre Mi (souvent de haut en bas, gauche à droite)
-    # Ici, tri par Y puis par X
-    clusters = clusters[clusters[:, 1].argsort()]
-    
-    return clusters[:nb_points]
+    if len(points_filtres) < nb_points:
+        print(f"ALERTE : Seulement {len(points_filtres)} points trouvés après filtrage !")
+
+    return points_filtres[:nb_points]
 
 def calculer_MRN(points_3d, points_2d):
     """
