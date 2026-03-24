@@ -1,0 +1,23 @@
+{
+  "thresholds_otsu": [
+    116.0,
+    105.0,
+    101.0,
+    101.0,
+    99.0,
+    96.0,
+    89.0
+  ],
+  "image_size": [
+    1280,
+    720
+  ],
+  "num_valid_pixels": 380020,
+  "num_points_filtered": 362438,
+  "z_median_mm": 51.68062455377944,
+  "z_std_mm": 0.13054304456305474,
+  "z_min_mm": 51.3941459388457,
+  "z_max_mm": 51.86314526041098,
+  "used_MR": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle_2026_03_24\\MR_reel.txt",
+  "used_ME": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle_2026_03_24\\MEt_from_MR_reel.txt"
+}

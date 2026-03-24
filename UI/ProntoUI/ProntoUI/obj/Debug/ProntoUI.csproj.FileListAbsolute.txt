@@ -32,3 +32,4 @@ C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\bin
 C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.csproj.CopyComplete
 C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.exe
 C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\obj\Debug\ProntoUI.pdb
+C:\Users\Mathieu\Desktop\Pronto\repos\Pronto-Imageur-3D\UI\ProntoUI\ProntoUI\bin\Debug\prgm\white_fullscreen.py

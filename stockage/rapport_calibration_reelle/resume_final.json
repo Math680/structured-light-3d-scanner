@@ -1,0 +1,17 @@
+{
+  "receiver_mean_reprojection_error_px": 0.29666462908626695,
+  "receiver_max_reprojection_error_px": 0.8122310915501108,
+  "emitter_mean_reprojection_error_px": 0.6531573417633931,
+  "emitter_max_reprojection_error_px": 1.748140250422821,
+  "receiver_images": [
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle\\recepteur_z0_points.png",
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle\\recepteur_z100_points.png"
+  ],
+  "emitter_images": [
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle\\emetteur_z0_points.png",
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle\\emetteur_z100_points.png"
+  ],
+  "summary_image": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle\\resume_calibration.png",
+  "receiver_matrix_path": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle\\MR_reel.txt",
+  "emitter_matrix_path": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle\\MEt_from_MR_reel.txt"
+}

@@ -25,7 +25,10 @@ namespace ProntoUI
         private enum CalibrationEtat
         {
             Inactive = 0,
-            AttentePhoto2 = 1
+            AttentePhotoRecepteur1 = 1,
+            AttentePhotoRecepteur2 = 2,
+            AttentePhotoEmetteur1 = 3,
+            AttentePhotoEmetteur2 = 4
         }
 
         private FilterInfoCollection _videoDevices;
@@ -47,8 +50,9 @@ namespace ProntoUI
         private bool _traitementTriggerEnCours;
         private int _intervalMs;
         private CalibrationEtat _calibrationEtat = CalibrationEtat.Inactive;
-        private Process _damierProcess;
+        private Process _projectionProcess;
         private string _currentProjectPath;
+        private string _currentCalibrationReportDirectory;
 
         private const string ProjectExtension = ".pronto3d";
         private static readonly System.Drawing.Size PreferredPreviewSize = new System.Drawing.Size(1280, 720);
@@ -217,7 +221,37 @@ namespace ProntoUI
             capture.Set(VideoCaptureProperties.Fps, 30);
             capture.Set(VideoCaptureProperties.BufferSize, 1);
             capture.Set(VideoCaptureProperties.ConvertRgb, 1);
+            ResetCaptureAutoSettings(capture, api);
             return true;
+        }
+
+        private void ResetCaptureAutoSettings(VideoCapture capture, VideoCaptureAPIs api)
+        {
+            // Certains drivers gardent le dernier etat manuel entre deux ouvertures.
+            // On remet la camera dans un mode auto "sain" au lancement de la preview.
+            TrySetCaptureProperty(capture, VideoCaptureProperties.AutoWB, 1);
+            TrySetCaptureProperty(capture, VideoCaptureProperties.AutoFocus, 1);
+
+            if (api == VideoCaptureAPIs.DSHOW)
+            {
+                TrySetCaptureProperty(capture, VideoCaptureProperties.AutoExposure, 0.75);
+            }
+            else
+            {
+                TrySetCaptureProperty(capture, VideoCaptureProperties.AutoExposure, 1);
+            }
+        }
+
+        private bool TrySetCaptureProperty(VideoCapture capture, VideoCaptureProperties property, double value)
+        {
+            try
+            {
+                return capture.Set(property, value);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void StartPreviewLoop(CancellationToken token)
@@ -281,7 +315,7 @@ namespace ProntoUI
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             TerminerAcquisition();
-            TerminerProjectionDamier();
+            TerminerProjection();
             StopCam2();
         }
 
@@ -380,34 +414,72 @@ namespace ProntoUI
             switch (_calibrationEtat)
             {
                 case CalibrationEtat.Inactive:
-                    if (!LancerProjectionDamier())
+                    if (!LancerProjectionBlanche())
                     {
-                        label1.Text = "Projection damier indisponible";
+                        label1.Text = "Projection blanche indisponible";
                         return;
                     }
 
-                    if (!SauvegarderCaptureCalibration(1))
+                    _calibrationEtat = CalibrationEtat.AttentePhotoRecepteur1;
+                    button3.Text = "Calibration - Recepteur Photo 1";
+                    label1.Text = "Fond blanc affiche, prendre la photo recepteur 1";
+                    break;
+
+                case CalibrationEtat.AttentePhotoRecepteur1:
+                    if (!SauvegarderCaptureCalibrationRecepteur(1))
                     {
+                        TerminerProjection();
                         label1.Text = "Impossible de prendre la photo 1";
                         return;
                     }
 
-                    _calibrationEtat = CalibrationEtat.AttentePhoto2;
-                    button3.Text = "Calibration - Photo 2";
-                    label1.Text = "Calibration: photo 1 enregistree, deplacer le plan puis reprendre";
+                    _calibrationEtat = CalibrationEtat.AttentePhotoRecepteur2;
+                    button3.Text = "Calibration - Recepteur Photo 2";
+                    label1.Text = "Calibration recepteur: photo 1 enregistree, deplacer le plan puis reprendre";
                     break;
 
-                case CalibrationEtat.AttentePhoto2:
-                    if (!SauvegarderCaptureCalibration(2))
+                case CalibrationEtat.AttentePhotoRecepteur2:
+                    if (!SauvegarderCaptureCalibrationRecepteur(2))
                     {
-                        label1.Text = "Impossible de prendre la photo 2";
+                        label1.Text = "Impossible de prendre la photo 2 recepteur";
                         return;
                     }
 
-                    TerminerProjectionDamier();
+                    TerminerProjection();
+                    if (!LancerProjectionDamier())
+                    {
+                        label1.Text = "Recepteur termine, mais projection damier indisponible pour l'emetteur";
+                        return;
+                    }
+
+                    _calibrationEtat = CalibrationEtat.AttentePhotoEmetteur1;
+                    button3.Text = "Calibration - Emetteur Photo 1";
+                    label1.Text = "Calibration recepteur terminee, mire rouge affichee pour l'emetteur";
+                    break;
+
+                case CalibrationEtat.AttentePhotoEmetteur1:
+                    if (!SauvegarderCaptureCalibrationEmetteur(1))
+                    {
+                        label1.Text = "Impossible de prendre la photo 1 emetteur";
+                        return;
+                    }
+
+                    _calibrationEtat = CalibrationEtat.AttentePhotoEmetteur2;
+                    button3.Text = "Calibration - Emetteur Photo 2";
+                    label1.Text = "Calibration emetteur: photo 1 enregistree, deplacer le plan puis reprendre";
+                    break;
+
+                case CalibrationEtat.AttentePhotoEmetteur2:
+                    if (!SauvegarderCaptureCalibrationEmetteur(2))
+                    {
+                        label1.Text = "Impossible de prendre la photo 2 emetteur";
+                        return;
+                    }
+
+                    TerminerProjection();
                     _calibrationEtat = CalibrationEtat.Inactive;
                     button3.Text = "Calibration";
-                    label1.Text = "Calibration terminee: 2 photos enregistrees";
+                    _ = ExecuterCalibrationCompleteAsync();
                     break;
             }
         }
@@ -537,18 +609,57 @@ namespace ProntoUI
             }
         }
 
-        private bool SauvegarderCaptureCalibration(int indexCapture)
+        private Bitmap CopierFrameCourante()
         {
-            Bitmap imageASauver = null;
-
             lock (_frameLock)
             {
                 if (_lastFrame != null)
                 {
-                    imageASauver = (Bitmap)_lastFrame.Clone();
+                    return (Bitmap)_lastFrame.Clone();
                 }
             }
 
+            return null;
+        }
+
+        private string GetRepositoryRootPath()
+        {
+            return Path.GetFullPath(Path.Combine(Application.StartupPath, "..", "..", "..", "..", ".."));
+        }
+
+        private bool SauvegarderCaptureCalibrationRecepteur(int indexCapture)
+        {
+            Bitmap imageASauver = CopierFrameCourante();
+            if (imageASauver == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                string dossier = Path.Combine(Application.StartupPath, "captures", "calibration_recepteur");
+                Directory.CreateDirectory(dossier);
+
+                string nomFichierLocal = indexCapture == 1 ? "damier0.png" : "damier100.png";
+                string cheminLocal = Path.Combine(dossier, nomFichierLocal);
+                imageASauver.Save(cheminLocal, ImageFormat.Png);
+
+                string dossierRepoImages = Path.Combine(GetRepositoryRootPath(), "img");
+                Directory.CreateDirectory(dossierRepoImages);
+                string nomFichierRepo = indexCapture == 1 ? "damier0.jpg" : "damier100.jpg";
+                string cheminRepo = Path.Combine(dossierRepoImages, nomFichierRepo);
+                imageASauver.Save(cheminRepo, ImageFormat.Jpeg);
+                return true;
+            }
+            finally
+            {
+                imageASauver.Dispose();
+            }
+        }
+
+        private bool SauvegarderCaptureCalibrationEmetteur(int indexCapture)
+        {
+            Bitmap imageASauver = CopierFrameCourante();
             if (imageASauver == null)
             {
                 return false;
@@ -559,9 +670,8 @@ namespace ProntoUI
                 string dossier = Path.Combine(Application.StartupPath, "captures", "calibration_emetteur");
                 Directory.CreateDirectory(dossier);
 
-                string nomFichier = $"capture_calibration_{indexCapture}.png";
+                string nomFichier = indexCapture == 1 ? "capture_calibration_z0.png" : "capture_calibration_z100.png";
                 string cheminComplet = Path.Combine(dossier, nomFichier);
-
                 imageASauver.Save(cheminComplet, ImageFormat.Png);
                 return true;
             }
@@ -571,14 +681,24 @@ namespace ProntoUI
             }
         }
 
+        private bool LancerProjectionBlanche()
+        {
+            return LancerProjection("white_fullscreen.py");
+        }
+
         private bool LancerProjectionDamier()
         {
-            if (_damierProcess != null && !_damierProcess.HasExited)
+            return LancerProjection("damier_fullscreen.py");
+        }
+
+        private bool LancerProjection(string scriptName)
+        {
+            if (_projectionProcess != null && !_projectionProcess.HasExited)
             {
                 return true;
             }
 
-            string scriptPath = Path.Combine(Application.StartupPath, "prgm", "damier_fullscreen.py");
+            string scriptPath = Path.Combine(Application.StartupPath, "prgm", scriptName);
             if (!File.Exists(scriptPath))
             {
                 return false;
@@ -589,7 +709,7 @@ namespace ProntoUI
                 var psi = new ProcessStartInfo
                 {
                     FileName = "python",
-                    Arguments = "prgm/damier_fullscreen.py",
+                    Arguments = $"prgm/{scriptName}",
                     UseShellExecute = false,
                     RedirectStandardOutput = false,
                     RedirectStandardError = false,
@@ -597,30 +717,126 @@ namespace ProntoUI
                     WorkingDirectory = Application.StartupPath
                 };
 
-                _damierProcess = new Process();
-                _damierProcess.StartInfo = psi;
-                _damierProcess.Start();
+                _projectionProcess = new Process();
+                _projectionProcess.StartInfo = psi;
+                _projectionProcess.Start();
                 return true;
             }
             catch
             {
-                _damierProcess = null;
+                _projectionProcess = null;
                 return false;
             }
         }
 
-        private void TerminerProjectionDamier()
+        private async Task ExecuterCalibrationCompleteAsync()
         {
-            if (_damierProcess == null)
+            button3.Enabled = false;
+            label1.Text = "Calibration: calcul en cours";
+
+            try
+            {
+                string repositoryRoot = GetRepositoryRootPath();
+                string scriptPath = Path.Combine(repositoryRoot, "PRGMS_PYTHON", "Calibration", "Calibration_pipeline_reelle.py");
+                string pythonOutput = await RunPythonScriptAsync(scriptPath, repositoryRoot);
+                _currentCalibrationReportDirectory = Path.Combine(repositoryRoot, "stockage", "rapport_calibration_reelle");
+                ChargerImagesCalibrationDepuisRapport(_currentCalibrationReportDirectory);
+                label1.Text = "Calibration terminee: calcul et compte-rendu disponibles";
+            }
+            catch (Exception ex)
+            {
+                label1.Text = "Calibration terminee, mais calcul echoue";
+                MessageBox.Show(
+                    this,
+                    $"Impossible d'executer la calibration Python : {ex.Message}",
+                    "Calibration",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+            finally
+            {
+                button3.Enabled = true;
+            }
+        }
+
+        private async Task<string> RunPythonScriptAsync(string scriptPath, string workingDirectory)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "python",
+                Arguments = $"\"{scriptPath}\"",
+                WorkingDirectory = workingDirectory,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using (var process = new Process())
+            {
+                process.StartInfo = psi;
+                var outputBuilder = new StringBuilder();
+                var errorBuilder = new StringBuilder();
+
+                process.Start();
+
+                Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
+                Task<string> errorTask = process.StandardError.ReadToEndAsync();
+
+                await Task.Run(() => process.WaitForExit());
+
+                outputBuilder.Append(await outputTask);
+                errorBuilder.Append(await errorTask);
+
+                if (process.ExitCode != 0)
+                {
+                    throw new InvalidOperationException(errorBuilder.Length > 0 ? errorBuilder.ToString() : outputBuilder.ToString());
+                }
+
+                return outputBuilder.ToString();
+            }
+        }
+
+        private void ChargerImagesCalibrationDepuisRapport(string reportDirectory)
+        {
+            string receiverImagePath = Path.Combine(reportDirectory, "recepteur_z0_points.png");
+            string emitterImagePath = Path.Combine(reportDirectory, "emetteur_z0_points.png");
+            string summaryImagePath = Path.Combine(reportDirectory, "resume_calibration.png");
+
+            SetPictureBoxImage(pictureBoxRenduCalibration, summaryImagePath);
+            SetPictureBoxImage(pictureBoxWebcamCalibration, receiverImagePath);
+            SetPictureBoxImage(pictureBoxCalibrationDetail, emitterImagePath);
+            tabControl1.SelectedTab = tabPage3;
+        }
+
+        private void SetPictureBoxImage(PictureBox pictureBox, string imagePath)
+        {
+            if (!File.Exists(imagePath))
+            {
+                return;
+            }
+
+            using (var stream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var image = Image.FromStream(stream))
+            {
+                var oldImage = pictureBox.Image;
+                pictureBox.Image = new Bitmap(image);
+                oldImage?.Dispose();
+            }
+        }
+
+        private void TerminerProjection()
+        {
+            if (_projectionProcess == null)
             {
                 return;
             }
 
             try
             {
-                if (!_damierProcess.HasExited)
+                if (!_projectionProcess.HasExited)
                 {
-                    _damierProcess.Kill();
+                    _projectionProcess.Kill();
                 }
             }
             catch
@@ -628,8 +844,8 @@ namespace ProntoUI
             }
             finally
             {
-                _damierProcess.Dispose();
-                _damierProcess = null;
+                _projectionProcess.Dispose();
+                _projectionProcess = null;
             }
         }
 

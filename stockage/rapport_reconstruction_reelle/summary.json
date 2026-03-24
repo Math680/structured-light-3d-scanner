@@ -1,0 +1,31 @@
+{
+  "capture_count": 8,
+  "receiver_matrix_path": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle\\MR_reel.txt",
+  "emitter_matrix_path": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_calibration_reelle\\MEt_from_MR_reel.txt",
+  "num_points_raw": 58310,
+  "num_points_filtered": 58290,
+  "z_median_raw": 1095.0406212253565,
+  "plane_center": [
+    263.3096102090517,
+    5.758656833805722,
+    1097.6900594756455
+  ],
+  "plane_normal": [
+    -0.010470606117113118,
+    -0.9989285977172592,
+    -0.0450779665709347
+  ],
+  "plane_rmse": 1.7247695656513828,
+  "plane_std": 1.7247695656513828,
+  "plane_p95_abs": 3.091836976361425,
+  "central_point_count": 46645,
+  "central_plane_rmse": 1.1830668200768446,
+  "central_plane_p95_abs": 1.8194859129180665,
+  "z_min": 911.9035823884761,
+  "z_max": 1235.7656619845116,
+  "point_cloud_filtered_ply": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_reconstruction_reelle\\point_cloud_filtered.ply",
+  "point_cloud_raw_ply": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_reconstruction_reelle\\point_cloud_raw.ply",
+  "analysis_image": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_reconstruction_reelle\\reconstruction_analysis.png",
+  "edge_map": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_reconstruction_reelle\\edge_map.png",
+  "captures_montage": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_reconstruction_reelle\\captures_montage.png"
+}

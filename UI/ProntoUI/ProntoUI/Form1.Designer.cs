@@ -45,14 +45,28 @@ namespace ProntoUI
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.pictureBoxRenduCalibration = new System.Windows.Forms.PictureBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.pictureBoxWebcamCalibration = new System.Windows.Forms.PictureBox();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.pictureBoxCalibrationDetail = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
             this.label2 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.tabControl1.SuspendLayout();
+            this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxWebcamCalibration)).BeginInit();
+            this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCalibrationDetail)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRenduCalibration)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             this.SuspendLayout();
@@ -186,6 +200,7 @@ namespace ProntoUI
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.HotTrack = true;
             this.tabControl1.Location = new System.Drawing.Point(318, 56);
             this.tabControl1.Name = "tabControl1";
@@ -195,6 +210,7 @@ namespace ProntoUI
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.pictureBoxRenduCalibration);
             this.tabPage1.Location = new System.Drawing.Point(4, 29);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
@@ -203,9 +219,19 @@ namespace ProntoUI
             this.tabPage1.Text = "Rendu3D";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // pictureBoxRenduCalibration
+            // 
+            this.pictureBoxRenduCalibration.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBoxRenduCalibration.Location = new System.Drawing.Point(3, 3);
+            this.pictureBoxRenduCalibration.Name = "pictureBoxRenduCalibration";
+            this.pictureBoxRenduCalibration.Size = new System.Drawing.Size(1297, 1018);
+            this.pictureBoxRenduCalibration.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBoxRenduCalibration.TabIndex = 0;
+            this.pictureBoxRenduCalibration.TabStop = false;
+            // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.pictureBox1);
+            this.tabPage2.Controls.Add(this.splitContainer1);
             this.tabPage2.Location = new System.Drawing.Point(4, 29);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
@@ -214,16 +240,64 @@ namespace ProntoUI
             this.tabPage2.Text = "Webcam";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.pictureBox1);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.pictureBoxWebcamCalibration);
+            this.splitContainer1.Size = new System.Drawing.Size(1297, 1018);
+            this.splitContainer1.SplitterDistance = 946;
+            this.splitContainer1.TabIndex = 1;
+            // 
             // pictureBox1
             // 
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
+            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(1297, 1018);
+            this.pictureBox1.Size = new System.Drawing.Size(946, 1018);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            // 
+            // pictureBoxWebcamCalibration
+            // 
+            this.pictureBoxWebcamCalibration.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBoxWebcamCalibration.Location = new System.Drawing.Point(0, 0);
+            this.pictureBoxWebcamCalibration.Name = "pictureBoxWebcamCalibration";
+            this.pictureBoxWebcamCalibration.Size = new System.Drawing.Size(347, 1018);
+            this.pictureBoxWebcamCalibration.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBoxWebcamCalibration.TabIndex = 0;
+            this.pictureBoxWebcamCalibration.TabStop = false;
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.pictureBoxCalibrationDetail);
+            this.tabPage3.Location = new System.Drawing.Point(4, 29);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(1303, 1024);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Calibration";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // pictureBoxCalibrationDetail
+            // 
+            this.pictureBoxCalibrationDetail.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBoxCalibrationDetail.Location = new System.Drawing.Point(3, 3);
+            this.pictureBoxCalibrationDetail.Name = "pictureBoxCalibrationDetail";
+            this.pictureBoxCalibrationDetail.Size = new System.Drawing.Size(1297, 1018);
+            this.pictureBoxCalibrationDetail.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBoxCalibrationDetail.TabIndex = 0;
+            this.pictureBoxCalibrationDetail.TabStop = false;
             // 
             // trackBar2
             // 
@@ -267,7 +341,16 @@ namespace ProntoUI
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.tabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxWebcamCalibration)).EndInit();
+            this.tabPage3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCalibrationDetail)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRenduCalibration)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
             this.ResumeLayout(false);
@@ -294,9 +377,14 @@ namespace ProntoUI
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.TrackBar trackBar2;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.PictureBox pictureBoxRenduCalibration;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.PictureBox pictureBoxWebcamCalibration;
+        private System.Windows.Forms.PictureBox pictureBoxCalibrationDetail;
     }
 }
 

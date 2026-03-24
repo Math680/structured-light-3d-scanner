@@ -1,0 +1,40 @@
+{
+  "input_images": [
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\UI\\ProntoUI\\ProntoUI\\bin\\Debug\\captures\\1\\capture_1.png",
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\UI\\ProntoUI\\ProntoUI\\bin\\Debug\\captures\\1\\capture_2.png",
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\UI\\ProntoUI\\ProntoUI\\bin\\Debug\\captures\\1\\capture_3.png",
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\UI\\ProntoUI\\ProntoUI\\bin\\Debug\\captures\\1\\capture_4.png",
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\UI\\ProntoUI\\ProntoUI\\bin\\Debug\\captures\\1\\capture_5.png",
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\UI\\ProntoUI\\ProntoUI\\bin\\Debug\\captures\\1\\capture_6.png",
+    "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\UI\\ProntoUI\\ProntoUI\\bin\\Debug\\captures\\1\\capture_7.png"
+  ],
+  "thresholds_otsu": [
+    116.0,
+    105.0,
+    101.0,
+    101.0,
+    99.0,
+    96.0,
+    89.0
+  ],
+  "image_size": [
+    1280,
+    720
+  ],
+  "num_valid_pixels": 380020,
+  "num_reconstructed_points_raw": 380020,
+  "num_reconstructed_points_filtered": 371067,
+  "z_median_mm": -225.64749061931633,
+  "z_std_mm": 10078.36414689105,
+  "z_min_mm": -64282.38421128868,
+  "z_max_mm": 82471.98826680315,
+  "used_MR": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\MR.txt",
+  "used_ME": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\MEt.txt",
+  "artifacts": {
+    "montage": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_reconstruction_reelle_2026_03_24\\captures_montage.png",
+    "code_map": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_reconstruction_reelle_2026_03_24\\code_map.png",
+    "reconstruction_3d": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_reconstruction_reelle_2026_03_24\\reconstruction_3d.png",
+    "profil_xz": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_reconstruction_reelle_2026_03_24\\profil_xz.png",
+    "histogramme_z": "C:\\Users\\Mathieu\\Desktop\\Pronto\\repos\\Pronto-Imageur-3D\\stockage\\rapport_reconstruction_reelle_2026_03_24\\histogramme_z.png"
+  }
+}

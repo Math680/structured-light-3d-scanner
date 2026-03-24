@@ -1,0 +1,8 @@
+{
+  "receiver_mean_reprojection_error_px": 0.27058564452944056,
+  "receiver_max_reprojection_error_px": 0.8210284245924545,
+  "receiver_rel_error_vs_legacy_norm": 0.5480013717934671,
+  "emitter_mean_reprojection_error_px": 0.945746110192963,
+  "emitter_max_reprojection_error_px": 2.2614641389002728,
+  "emitter_rel_error_vs_legacy_norm": 0.5311436222575884
+}
