@@ -62,6 +62,12 @@ def parse_args():
         default=200.0,
         help="Conserve les points dans une bande de profondeur autour de la mediane.",
     )
+    parser.add_argument(
+        "--triangulation-mode",
+        choices=("xy", "uv"),
+        default="xy",
+        help="Convention image utilisee dans la triangulation. 'xy' preserve mieux la separation en profondeur sur les donnees reelles actuelles.",
+    )
     return parser.parse_args()
 
 
@@ -114,16 +120,27 @@ def localize_fringe_edges(binary_stack):
     return code_map, posi_gauche, posi_droite, posi_globale
 
 
-def reconstruct_points(mr, me, posi_gauche, last_capture, foreground_threshold, bit_count):
-    height, width = posi_gauche.shape
+def reconstruct_points_from_map(
+    mr,
+    me,
+    projector_code_map,
+    last_capture,
+    foreground_threshold,
+    bit_count,
+    triangulation_mode,
+):
+    height, width = projector_code_map.shape
     rows, cols = np.indices((height, width), dtype=np.float64)
 
-    # Le code historique utilise u = ligne et v = colonne.
-    mask = (posi_gauche > 0) & (last_capture > foreground_threshold)
-    u_r = rows[mask]
-    v_r = cols[mask]
+    mask = (projector_code_map > 0) & (last_capture > foreground_threshold)
+    if triangulation_mode == "xy":
+        u_r = cols[mask]
+        v_r = rows[mask]
+    else:
+        u_r = rows[mask]
+        v_r = cols[mask]
     u_e = u_r.copy()
-    v_e = posi_gauche[mask] * (width / (2**bit_count))
+    v_e = projector_code_map[mask] * (width / (2**bit_count))
 
     point_count = len(u_r)
     if point_count == 0:
@@ -149,7 +166,7 @@ def reconstruct_points(mr, me, posi_gauche, last_capture, foreground_threshold, 
 
     intensities = last_capture[mask].astype(np.uint8)
     image_points = np.column_stack([v_r, u_r]).astype(np.float64)
-    fringe_codes = posi_gauche[mask].astype(np.float64)
+    fringe_codes = projector_code_map[mask].astype(np.float64)
     return xyz, intensities, image_points, fringe_codes, mask
 
 
@@ -214,6 +231,89 @@ def save_ply(path, xyz, intensities):
         for (x_value, y_value, z_value), intensity in zip(xyz, intensities):
             value = int(intensity)
             handle.write(f"{x_value:.6f} {y_value:.6f} {z_value:.6f} {value} {value} {value}\n")
+
+
+def save_obj_point_splats(path, xyz, vh, max_points=25000, half_size=0.6):
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    if len(xyz) > max_points:
+        sample_indices = np.linspace(0, len(xyz) - 1, max_points, dtype=np.int32)
+        xyz = xyz[sample_indices]
+
+    axis_u = vh[0] / np.linalg.norm(vh[0])
+    axis_v = vh[1] / np.linalg.norm(vh[1])
+    offset_u = axis_u * half_size
+    offset_v = axis_v * half_size
+
+    with path.open("w", encoding="ascii") as handle:
+        handle.write("# OBJ genere pour la visionneuse 3D Windows\n")
+        handle.write("o point_cloud_filtered\n")
+
+        for point in xyz:
+            corners = (
+                point - offset_u - offset_v,
+                point + offset_u - offset_v,
+                point + offset_u + offset_v,
+                point - offset_u + offset_v,
+            )
+            for x_value, y_value, z_value in corners:
+                handle.write(f"v {x_value:.6f} {y_value:.6f} {z_value:.6f}\n")
+
+        for point_index in range(len(xyz)):
+            vertex_start = point_index * 4 + 1
+            handle.write(f"f {vertex_start} {vertex_start + 1} {vertex_start + 2}\n")
+            handle.write(f"f {vertex_start} {vertex_start + 2} {vertex_start + 3}\n")
+
+
+def build_structured_mesh(xyz, image_points, intensities, max_edge_length=35.0):
+    image_rows = np.rint(image_points[:, 1]).astype(np.int32)
+    image_cols = np.rint(image_points[:, 0]).astype(np.int32)
+
+    row_min = int(image_rows.min())
+    col_min = int(image_cols.min())
+    row_count = int(image_rows.max() - row_min + 1)
+    col_count = int(image_cols.max() - col_min + 1)
+
+    index_grid = -np.ones((row_count, col_count), dtype=np.int32)
+    for index, (row_value, col_value) in enumerate(zip(image_rows, image_cols)):
+        index_grid[row_value - row_min, col_value - col_min] = index
+
+    faces = []
+    for row_index in range(row_count - 1):
+        for col_index in range(col_count - 1):
+            idx00 = index_grid[row_index, col_index]
+            idx01 = index_grid[row_index, col_index + 1]
+            idx10 = index_grid[row_index + 1, col_index]
+            idx11 = index_grid[row_index + 1, col_index + 1]
+
+            if idx00 >= 0 and idx01 >= 0 and idx10 >= 0:
+                if (
+                    np.linalg.norm(xyz[idx00] - xyz[idx01]) <= max_edge_length
+                    and np.linalg.norm(xyz[idx00] - xyz[idx10]) <= max_edge_length
+                    and np.linalg.norm(xyz[idx01] - xyz[idx10]) <= max_edge_length
+                ):
+                    faces.append((idx00, idx01, idx10))
+
+            if idx11 >= 0 and idx01 >= 0 and idx10 >= 0:
+                if (
+                    np.linalg.norm(xyz[idx11] - xyz[idx01]) <= max_edge_length
+                    and np.linalg.norm(xyz[idx11] - xyz[idx10]) <= max_edge_length
+                    and np.linalg.norm(xyz[idx01] - xyz[idx10]) <= max_edge_length
+                ):
+                    faces.append((idx11, idx10, idx01))
+
+    return faces
+
+
+def save_obj_mesh(path, xyz, faces):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="ascii") as handle:
+        handle.write("# OBJ mesh genere pour la visionneuse 3D Windows\n")
+        handle.write("o reconstruction_mesh\n")
+        for x_value, y_value, z_value in xyz:
+            handle.write(f"v {x_value:.6f} {y_value:.6f} {z_value:.6f}\n")
+        for a_index, b_index, c_index in faces:
+            handle.write(f"f {a_index + 1} {b_index + 1} {c_index + 1}\n")
 
 
 def create_capture_montage(capture_paths, images, output_path):
@@ -288,6 +388,20 @@ def create_plots(xyz, distances, vh, output_path):
     plt.close(figure)
 
 
+def summarize_depth_distribution(xyz):
+    z_values = xyz[:, 2]
+    histogram, bin_edges = np.histogram(z_values, bins=120)
+    peak_indices = histogram.argsort()[-6:]
+    peak_centers = sorted(float((bin_edges[index] + bin_edges[index + 1]) / 2.0) for index in peak_indices)
+    return {
+        "z_min": float(np.min(z_values)),
+        "z_max": float(np.max(z_values)),
+        "z_median": float(np.median(z_values)),
+        "z_std": float(np.std(z_values)),
+        "z_peak_centers": peak_centers,
+    }
+
+
 def main():
     args = parse_args()
     output_dir = Path(args.output_dir)
@@ -300,22 +414,55 @@ def main():
     binary_stack = compute_binary_stack(images)
     code_map, posi_gauche, posi_droite, posi_globale = localize_fringe_edges(binary_stack)
 
-    xyz, intensities, image_points, fringe_codes, _ = reconstruct_points(
-        receiver_matrix,
-        emitter_matrix,
-        posi_gauche,
-        images[-1],
-        args.foreground_threshold,
-        len(images),
-    )
+    reconstruction_maps = {
+        "left_only": posi_gauche,
+        "all_edges": np.where(posi_droite > 0, posi_droite, posi_gauche),
+        "all_pixels": code_map.astype(np.float64),
+    }
 
-    xyz_filtered, intensities_filtered, image_points_filtered, fringe_codes_filtered, z_median = robust_filter_points(
-        xyz,
-        intensities,
-        image_points,
-        fringe_codes,
-        args.z_filter_mm,
-    )
+    reconstructions = {}
+    for name, projector_map in reconstruction_maps.items():
+        xyz_current, intensities_current, image_points_current, fringe_codes_current, _ = reconstruct_points_from_map(
+            receiver_matrix,
+            emitter_matrix,
+            projector_map,
+            images[-1],
+            args.foreground_threshold,
+            len(images),
+            args.triangulation_mode,
+        )
+        (
+            xyz_filtered_current,
+            intensities_filtered_current,
+            image_points_filtered_current,
+            fringe_codes_filtered_current,
+            z_median_current,
+        ) = robust_filter_points(
+            xyz_current,
+            intensities_current,
+            image_points_current,
+            fringe_codes_current,
+            args.z_filter_mm,
+        )
+        reconstructions[name] = {
+            "xyz_raw": xyz_current,
+            "intensities_raw": intensities_current,
+            "xyz_filtered": xyz_filtered_current,
+            "intensities_filtered": intensities_filtered_current,
+            "image_points_filtered": image_points_filtered_current,
+            "fringe_codes_filtered": fringe_codes_filtered_current,
+            "z_median_raw": z_median_current,
+        }
+
+    preferred_name = "all_edges"
+    preferred = reconstructions[preferred_name]
+    xyz = preferred["xyz_raw"]
+    intensities = preferred["intensities_raw"]
+    xyz_filtered = preferred["xyz_filtered"]
+    intensities_filtered = preferred["intensities_filtered"]
+    image_points_filtered = preferred["image_points_filtered"]
+    fringe_codes_filtered = preferred["fringe_codes_filtered"]
+    z_median = preferred["z_median_raw"]
 
     plane_center, plane_normal, plane_distances, vh = fit_plane(xyz_filtered)
     central_metrics = compute_central_plane_metrics(xyz_filtered, plane_center, vh)
@@ -332,9 +479,22 @@ def main():
     np.savetxt(output_dir / "PosiGlobale.txt", posi_globale, fmt="%.0f")
     save_ply(output_dir / "point_cloud_filtered.ply", xyz_filtered, intensities_filtered)
     save_ply(output_dir / "point_cloud_raw.ply", xyz, intensities)
+    save_obj_point_splats(output_dir / "point_cloud_filtered.obj", xyz_filtered, vh)
+    mesh_faces = build_structured_mesh(xyz_filtered, image_points_filtered, intensities_filtered)
+    save_obj_mesh(output_dir / "mesh_filtered.obj", xyz_filtered, mesh_faces)
+    for name, reconstruction in reconstructions.items():
+        dense_faces = build_structured_mesh(
+            reconstruction["xyz_filtered"],
+            reconstruction["image_points_filtered"],
+            reconstruction["intensities_filtered"],
+            max_edge_length=80.0,
+        )
+        save_obj_mesh(output_dir / f"mesh_{name}.obj", reconstruction["xyz_filtered"], dense_faces)
 
     summary = {
         "capture_count": len(capture_paths),
+        "preferred_variant": preferred_name,
+        "triangulation_mode": args.triangulation_mode,
         "receiver_matrix_path": str(Path(args.receiver_matrix)),
         "emitter_matrix_path": str(Path(args.emitter_matrix)),
         "num_points_raw": int(len(xyz)),
@@ -350,6 +510,17 @@ def main():
         "z_max": float(np.max(xyz_filtered[:, 2])),
         "point_cloud_filtered_ply": str(output_dir / "point_cloud_filtered.ply"),
         "point_cloud_raw_ply": str(output_dir / "point_cloud_raw.ply"),
+        "point_cloud_filtered_obj": str(output_dir / "point_cloud_filtered.obj"),
+        "mesh_filtered_obj": str(output_dir / "mesh_filtered.obj"),
+        "mesh_face_count": int(len(mesh_faces)),
+        "variant_depth_summaries": {
+            name: {
+                "num_points_filtered": int(len(reconstruction["xyz_filtered"])),
+                **summarize_depth_distribution(reconstruction["xyz_filtered"]),
+                "mesh_obj": str(output_dir / f"mesh_{name}.obj"),
+            }
+            for name, reconstruction in reconstructions.items()
+        },
         "analysis_image": str(output_dir / "reconstruction_analysis.png"),
         "edge_map": str(output_dir / "edge_map.png"),
         "captures_montage": str(output_dir / "captures_montage.png"),
