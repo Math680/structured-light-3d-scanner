@@ -19,8 +19,24 @@ aussi l'association d'une image couleur aux points reconstruits.
 │   ├── scripts_projection/      Projection plein écran
 │   └── calibration_validee/     Calibration validée MR/ME
 ├── tools/creer_masque.py        Outil interactif de création de masque
-└── docs/                        Documents utiles du projet
+└── assets/readme/               Images de présentation du projet
 ```
+
+## Aperçu
+
+Interface principale :
+
+![Interface PRONTO](assets/readme/interface.png)
+
+Exemple de reconstruction couleur sur le bidon gris :
+
+![Objet couleur](assets/readme/image_couleur_bidon.png)
+
+![Reconstruction couleur](assets/readme/reconstruction_couleur_bidon.png)
+
+Validation de reprojection pendant la calibration :
+
+![Validation reprojection récepteur](assets/readme/validation_reprojection_recepteur.png)
 
 ## Prérequis
 
