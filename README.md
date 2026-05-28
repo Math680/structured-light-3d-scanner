@@ -22,9 +22,6 @@ aussi l'association d'une image couleur aux points reconstruits.
 └── docs/                        Documents utiles du projet
 ```
 
-Les anciens scripts expérimentaux, caches Python, sorties de tests, captures et
-résultats générés ne sont pas conservés dans le dépôt.
-
 ## Prérequis
 
 - Windows
