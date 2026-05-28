@@ -1,0 +1,8 @@
+{
+  "receiver_mean_reprojection_error_px": 0.5788849339500004,
+  "receiver_max_reprojection_error_px": 3.169677750928503,
+  "emitter_mean_reprojection_error_px": 0.876827596632006,
+  "emitter_max_reprojection_error_px": 2.7824884953422537,
+  "receiver_matrix_path": "calibration_validee/MR.txt",
+  "emitter_matrix_path": "calibration_validee/ME.txt"
+}

@@ -1,1 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Reconstruction data generated locally
+reconstruction/captures/
+reconstruction/resultats/
+
+# Visual Studio / MSBuild
 .vs/
+bin/
+obj/
+*.user
+*.suo
+*.pdb
+*.cache
+
+# NuGet packages are restored locally
+UI/ProntoUI/packages/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.aux
+*.out

@@ -46,6 +46,7 @@ namespace ProntoUI
         private int _capturesAttendues;
         private int _capturesEffectuees;
         private bool _acquisitionEnCours;
+        private bool _attenteCaptureCouleur;
         private int _triggersEnAttente;
         private bool _traitementTriggerEnCours;
         private int _intervalMs;
@@ -53,6 +54,7 @@ namespace ProntoUI
         private Process _projectionProcess;
         private string _currentProjectPath;
         private string _currentCalibrationReportDirectory;
+        private string _dernierDossierAcquisition;
 
         private const string ProjectExtension = ".pronto3d";
         private static readonly System.Drawing.Size PreferredPreviewSize = new System.Drawing.Size(1280, 720);
@@ -75,6 +77,25 @@ namespace ProntoUI
 
         private void button1_Click(object sender, EventArgs e)
         {
+            if (_attenteCaptureCouleur)
+            {
+                if (!EnsureCameraReady())
+                {
+                    return;
+                }
+
+                if (!SauvegarderCaptureCouleur())
+                {
+                    label1.Text = "Aucune image webcam disponible pour la capture couleur";
+                    return;
+                }
+
+                _attenteCaptureCouleur = false;
+                button1.Text = "Lancer Acquisition";
+                _ = FinaliserAcquisitionAsync();
+                return;
+            }
+
             if (_acquisitionEnCours)
             {
                 return;
@@ -89,6 +110,9 @@ namespace ProntoUI
             _capturesAttendues = trackBar1.Value;
             _capturesEffectuees = 0;
             _acquisitionEnCours = true;
+            NettoyerDossierAcquisition();
+            _dernierDossierAcquisition = GetAcquisitionFolder();
+            button1.Text = "Acquisition en cours";
             label1.Text = $"Acquisition en cours (0/{_capturesAttendues})";
 
             var psi = new ProcessStartInfo
@@ -479,7 +503,7 @@ namespace ProntoUI
                     TerminerProjection();
                     _calibrationEtat = CalibrationEtat.Inactive;
                     button3.Text = "Calibration";
-                    _ = ExecuterCalibrationCompleteAsync();
+                    _ = FinaliserCalibrationAsync();
                     break;
             }
         }
@@ -594,13 +618,14 @@ namespace ProntoUI
 
             try
             {
-                string dossier = Path.Combine(Application.StartupPath, "captures", "1");
+                string dossier = GetAcquisitionFolder();
                 Directory.CreateDirectory(dossier);
 
                 string nomFichier = $"capture_{indexCapture}.png";
                 string cheminComplet = Path.Combine(dossier, nomFichier);
 
                 imageASauver.Save(cheminComplet, ImageFormat.Png);
+                SauvegarderDansReconstructionPropre(imageASauver, Path.Combine("captures", "captures", "1"), nomFichier);
                 return true;
             }
             finally
@@ -622,9 +647,87 @@ namespace ProntoUI
             return null;
         }
 
+        private string GetAcquisitionFolder()
+        {
+            return Path.Combine(Application.StartupPath, "captures", "1");
+        }
+
+        private string GetWorkspaceRootPath()
+        {
+            return GetRepositoryRootPath();
+        }
+
+        private string GetReconstructionPropreRootPath()
+        {
+            return Path.Combine(GetRepositoryRootPath(), "reconstruction");
+        }
+
+        private string GetReconstructionPropreCapturesFolder(string dossierNom)
+        {
+            return Path.Combine(GetReconstructionPropreRootPath(), "captures", "captures", dossierNom);
+        }
+
+        private void NettoyerDossierAcquisition()
+        {
+            string dossierLocal = GetAcquisitionFolder();
+            if (Directory.Exists(dossierLocal))
+            {
+                Directory.Delete(dossierLocal, true);
+            }
+
+            string dossierPropre = GetReconstructionPropreCapturesFolder("1");
+            if (Directory.Exists(dossierPropre))
+            {
+                Directory.Delete(dossierPropre, true);
+            }
+        }
+
+        private void SauvegarderDansReconstructionPropre(Bitmap image, string cheminRelatifDossier, string nomFichier)
+        {
+            string dossier = Path.Combine(GetReconstructionPropreRootPath(), cheminRelatifDossier);
+            Directory.CreateDirectory(dossier);
+            image.Save(Path.Combine(dossier, nomFichier), ImageFormat.Png);
+        }
+
+        private bool SauvegarderCaptureCouleur()
+        {
+            Bitmap imageASauver = CopierFrameCourante();
+            if (imageASauver == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                string nomFichier = "capture_couleur.png";
+                string dossier = string.IsNullOrWhiteSpace(_dernierDossierAcquisition) ? GetAcquisitionFolder() : _dernierDossierAcquisition;
+                Directory.CreateDirectory(dossier);
+                imageASauver.Save(Path.Combine(dossier, nomFichier), ImageFormat.Png);
+                SauvegarderDansReconstructionPropre(imageASauver, Path.Combine("captures", "captures", "1"), nomFichier);
+                label1.Text = "Capture couleur sauvegardee";
+                return true;
+            }
+            finally
+            {
+                imageASauver.Dispose();
+            }
+        }
+
         private string GetRepositoryRootPath()
         {
-            return Path.GetFullPath(Path.Combine(Application.StartupPath, "..", "..", "..", "..", ".."));
+            DirectoryInfo current = new DirectoryInfo(Application.StartupPath);
+            while (current != null)
+            {
+                if (Directory.Exists(Path.Combine(current.FullName, "reconstruction", "src", "reconstruction3d"))
+                    && Directory.Exists(Path.Combine(current.FullName, "UI", "ProntoUI", "ProntoUI")))
+                {
+                    return current.FullName;
+                }
+
+                current = current.Parent;
+            }
+
+            throw new DirectoryNotFoundException("Impossible de trouver la racine du projet PRONTO.");
         }
 
         private bool SauvegarderCaptureCalibrationRecepteur(int indexCapture)
@@ -643,12 +746,8 @@ namespace ProntoUI
                 string nomFichierLocal = indexCapture == 1 ? "damier0.png" : "damier100.png";
                 string cheminLocal = Path.Combine(dossier, nomFichierLocal);
                 imageASauver.Save(cheminLocal, ImageFormat.Png);
+                SauvegarderDansReconstructionPropre(imageASauver, Path.Combine("captures", "captures", "calibration_recepteur"), nomFichierLocal);
 
-                string dossierRepoImages = Path.Combine(GetRepositoryRootPath(), "img");
-                Directory.CreateDirectory(dossierRepoImages);
-                string nomFichierRepo = indexCapture == 1 ? "damier0.jpg" : "damier100.jpg";
-                string cheminRepo = Path.Combine(dossierRepoImages, nomFichierRepo);
-                imageASauver.Save(cheminRepo, ImageFormat.Jpeg);
                 return true;
             }
             finally
@@ -673,6 +772,7 @@ namespace ProntoUI
                 string nomFichier = indexCapture == 1 ? "capture_calibration_z0.png" : "capture_calibration_z100.png";
                 string cheminComplet = Path.Combine(dossier, nomFichier);
                 imageASauver.Save(cheminComplet, ImageFormat.Png);
+                SauvegarderDansReconstructionPropre(imageASauver, Path.Combine("captures", "captures", "calibration_emetteur"), nomFichier);
                 return true;
             }
             finally
@@ -729,17 +829,32 @@ namespace ProntoUI
             }
         }
 
-        private async Task ExecuterCalibrationCompleteAsync()
+        private async Task FinaliserCalibrationAsync()
         {
             button3.Enabled = false;
-            label1.Text = "Calibration: calcul en cours";
+            label1.Text = "Calibration: creation des masques";
 
             try
             {
-                string repositoryRoot = GetRepositoryRootPath();
-                string scriptPath = Path.Combine(repositoryRoot, "PRGMS_PYTHON", "Calibration", "Calibration_pipeline_reelle.py");
-                string pythonOutput = await RunPythonScriptAsync(scriptPath, repositoryRoot);
-                _currentCalibrationReportDirectory = Path.Combine(repositoryRoot, "stockage", "rapport_calibration_reelle");
+                string workspaceRoot = GetWorkspaceRootPath();
+                string cleanRoot = GetReconstructionPropreRootPath();
+                string masqueScript = Path.Combine(workspaceRoot, "tools", "creer_masque.py");
+                string dossierCalibrationRecepteur = GetReconstructionPropreCapturesFolder("calibration_recepteur");
+                string dossierCalibrationEmetteur = GetReconstructionPropreCapturesFolder("calibration_emetteur");
+                await RunPythonScriptAsync(masqueScript, workspaceRoot, $"--folder \"{dossierCalibrationRecepteur}\"", createNoWindow: false);
+                await RunPythonScriptAsync(masqueScript, workspaceRoot, $"--folder \"{dossierCalibrationEmetteur}\"", createNoWindow: false);
+
+                label1.Text = "Calibration: ajustement des points et calcul MR/ME";
+                string anciensDiagnostics = Path.Combine(cleanRoot, "resultats", "diagnostics_calibration");
+                if (Directory.Exists(anciensDiagnostics))
+                {
+                    Directory.Delete(anciensDiagnostics, true);
+                }
+
+                string scriptPath = Path.Combine(cleanRoot, "scripts_calibration", "ajuster_points_calibration.py");
+                await RunPythonScriptAsync(scriptPath, cleanRoot, "", createNoWindow: false);
+
+                _currentCalibrationReportDirectory = Path.Combine(cleanRoot, "calibration_validee");
                 ChargerImagesCalibrationDepuisRapport(_currentCalibrationReportDirectory);
                 label1.Text = "Calibration terminee: calcul et compte-rendu disponibles";
             }
@@ -759,17 +874,17 @@ namespace ProntoUI
             }
         }
 
-        private async Task<string> RunPythonScriptAsync(string scriptPath, string workingDirectory)
+        private async Task<string> RunPythonScriptAsync(string scriptPath, string workingDirectory, string extraArguments = "", bool createNoWindow = true)
         {
             var psi = new ProcessStartInfo
             {
                 FileName = "python",
-                Arguments = $"\"{scriptPath}\"",
+                Arguments = string.IsNullOrWhiteSpace(extraArguments) ? $"\"{scriptPath}\"" : $"\"{scriptPath}\" {extraArguments}",
                 WorkingDirectory = workingDirectory,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                CreateNoWindow = true
+                CreateNoWindow = createNoWindow
             };
 
             using (var process = new Process())
@@ -799,9 +914,9 @@ namespace ProntoUI
 
         private void ChargerImagesCalibrationDepuisRapport(string reportDirectory)
         {
-            string receiverImagePath = Path.Combine(reportDirectory, "recepteur_z0_points.png");
-            string emitterImagePath = Path.Combine(reportDirectory, "emetteur_z0_points.png");
-            string summaryImagePath = Path.Combine(reportDirectory, "resume_calibration.png");
+            string receiverImagePath = Path.Combine(reportDirectory, "recepteur_z0_controle.png");
+            string emitterImagePath = Path.Combine(reportDirectory, "emetteur_z0_controle.png");
+            string summaryImagePath = Path.Combine(reportDirectory, "recepteur_z100_controle.png");
 
             SetPictureBoxImage(pictureBoxRenduCalibration, summaryImagePath);
             SetPictureBoxImage(pictureBoxWebcamCalibration, receiverImagePath);
@@ -1042,6 +1157,41 @@ namespace ProntoUI
             }
         }
 
+        private async Task FinaliserAcquisitionAsync()
+        {
+            button1.Enabled = false;
+            label1.Text = "Acquisition: creation du masque";
+
+            try
+            {
+                string workspaceRoot = GetWorkspaceRootPath();
+                string cleanRoot = GetReconstructionPropreRootPath();
+                string masqueScript = Path.Combine(workspaceRoot, "tools", "creer_masque.py");
+                string dossierObjet = GetReconstructionPropreCapturesFolder("1");
+                await RunPythonScriptAsync(masqueScript, workspaceRoot, $"--folder \"{dossierObjet}\"", createNoWindow: false);
+
+                label1.Text = "Acquisition: reconstruction 3D en cours";
+                string reconstructionScript = Path.Combine(cleanRoot, "scripts", "lancer_reconstruction.py");
+                await RunPythonScriptAsync(reconstructionScript, cleanRoot, "--objets \"1\" --ouvrir-html", createNoWindow: true);
+                label1.Text = "Acquisition terminee: reconstruction disponible dans reconstruction\\resultats\\1";
+            }
+            catch (Exception ex)
+            {
+                label1.Text = "Acquisition terminee, mais masque ou reconstruction echoue";
+                MessageBox.Show(
+                    this,
+                    $"Impossible de finaliser l'acquisition : {ex.Message}",
+                    "Acquisition",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+            finally
+            {
+                button1.Enabled = true;
+                button1.Text = "Lancer Acquisition";
+            }
+        }
+
         private void TerminerAcquisition()
         {
             _acquisitionEnCours = false;
@@ -1066,7 +1216,9 @@ namespace ProntoUI
                 }
             }
 
-            label1.Text = $"Acquisition terminée ({_capturesEffectuees}/{_capturesAttendues})";
+            _attenteCaptureCouleur = true;
+            button1.Text = "Prendre image couleur";
+            label1.Text = $"Acquisition terminee ({_capturesEffectuees}/{_capturesAttendues}) - cliquer pour prendre capture_couleur.png";
         }
 
     }

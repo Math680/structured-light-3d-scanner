@@ -178,12 +178,12 @@ namespace ProntoUI
             // trackBar1
             // 
             this.trackBar1.Location = new System.Drawing.Point(58, 537);
-            this.trackBar1.Maximum = 12;
+            this.trackBar1.Maximum = 7;
             this.trackBar1.Minimum = 3;
             this.trackBar1.Name = "trackBar1";
             this.trackBar1.Size = new System.Drawing.Size(224, 69);
             this.trackBar1.TabIndex = 3;
-            this.trackBar1.Value = 3;
+            this.trackBar1.Value = 7;
             this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
             // 
             // label1
@@ -193,7 +193,7 @@ namespace ProntoUI
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(46, 20);
             this.label1.TabIndex = 4;
-            this.label1.Text = "N = 3";
+            this.label1.Text = "N = 7";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // tabControl1
