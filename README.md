@@ -1,26 +1,15 @@
-# PRONTO - Imageur 3D
+# PRONTO · Imageur 3D
 
-Prototype de reconstruction 3D par lumière structurée binaire.
+Prototype de scanner 3D par lumière structurée binaire. L'interface Windows Forms (C#) pilote le couple caméra-projecteur. Le pipeline Python et OpenCV exploite la calibration et les images de franges pour calculer un nuage de points et lui associer les couleurs d'une photo de l'objet.
 
-Le projet pilote une caméra et un vidéoprojecteur, calibre le couple
-caméra/projecteur, acquiert une séquence de franges binaires puis reconstruit un
-nuage de points 3D visualisable dans un navigateur. La version actuelle inclut
-aussi l'association d'une image couleur aux points reconstruits.
+**[Explorer la galerie interactive](https://math680.github.io/pronto-reconstructions-3d/)** : ouvrez une reconstruction pour voir le résultat sans installer le logiciel ni disposer du matériel.
 
-## Organisation du dépôt
+## De la capture au nuage de points
 
-```text
-.
-├── UI/ProntoUI/                 Interface Windows Forms C#
-├── reconstruction/              Pipeline Python fonctionnel
-│   ├── src/reconstruction3d/     Code Python principal
-│   ├── scripts/                 Lanceurs reconstruction
-│   ├── scripts_calibration/     Calibration caméra/projecteur
-│   ├── scripts_projection/      Projection plein écran
-│   └── calibration_validee/     Calibration validée MR/ME
-├── tools/creer_masque.py        Outil interactif de création de masque
-└── assets/readme/               Images de présentation du projet
-```
+1. Calibrer la caméra et le projecteur.
+2. Projeter les franges binaires et acquérir une séquence d'images.
+3. Décoder les correspondances et reconstruire les points 3D.
+4. Exporter les points et leur couleur dans une vue HTML interactive.
 
 ## Aperçu
 
@@ -37,6 +26,21 @@ Exemple de reconstruction couleur sur le bidon gris :
 Validation de reprojection pendant la calibration :
 
 ![Validation reprojection récepteur](assets/readme/validation_reprojection_recepteur.png)
+
+## Organisation du dépôt
+
+```text
+.
+├── UI/ProntoUI/                 Interface Windows Forms C#
+├── reconstruction/              Pipeline Python fonctionnel
+│   ├── src/reconstruction3d/     Code Python principal
+│   ├── scripts/                 Lanceurs reconstruction
+│   ├── scripts_calibration/     Calibration caméra/projecteur
+│   ├── scripts_projection/      Projection plein écran
+│   └── calibration_validee/     Calibration validée MR/ME
+├── tools/creer_masque.py        Outil interactif de création de masque
+└── assets/readme/               Images de présentation du projet
+```
 
 ## Prérequis
 
