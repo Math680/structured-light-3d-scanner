@@ -1,8 +1,8 @@
-# PRONTO · Imageur 3D
+# Structured-Light 3D Scanner
 
 Prototype de scanner 3D par lumière structurée binaire. L'interface Windows Forms (C#) pilote le couple caméra-projecteur. Le pipeline Python et OpenCV exploite la calibration et les images de franges pour calculer un nuage de points et lui associer les couleurs d'une photo de l'objet.
 
-**[Explorer la galerie interactive](https://math680.github.io/pronto-reconstructions-3d/)** : ouvrez une reconstruction pour voir le résultat sans installer le logiciel ni disposer du matériel.
+**[Explorer la galerie interactive](https://math680.github.io/structured-light-3d-gallery/)** : ouvrez une reconstruction pour voir le résultat sans installer le logiciel ni disposer du matériel.
 
 ## De la capture au nuage de points
 
@@ -12,10 +12,6 @@ Prototype de scanner 3D par lumière structurée binaire. L'interface Windows Fo
 4. Exporter les points et leur couleur dans une vue HTML interactive.
 
 ## Aperçu
-
-Interface principale :
-
-![Interface PRONTO](assets/readme/interface.png)
 
 Exemple de reconstruction couleur sur le bidon gris :
 
@@ -31,7 +27,7 @@ Validation de reprojection pendant la calibration :
 
 ```text
 .
-├── UI/ProntoUI/                 Interface Windows Forms C#
+├── UI/                          Interface Windows Forms C#
 ├── reconstruction/              Pipeline Python fonctionnel
 │   ├── src/reconstruction3d/     Code Python principal
 │   ├── scripts/                 Lanceurs reconstruction
@@ -61,14 +57,16 @@ python -m pip install -r requirements.txt
 Restaurer les packages NuGet puis compiler :
 
 ```powershell
-nuget restore UI\ProntoUI\ProntoUI.sln
-msbuild UI\ProntoUI\ProntoUI.sln /p:Configuration=Debug /p:Platform="Any CPU"
+$solution = (Get-ChildItem -Path UI -Filter *.sln -Recurse -File).FullName
+nuget restore $solution
+msbuild $solution /p:Configuration=Debug /p:Platform="Any CPU"
 ```
 
-L'exécutable généré se trouve ensuite dans :
+L'exécutable généré se trouve dans le dossier `bin/Debug/` du projet Windows Forms :
 
-```text
-UI/ProntoUI/ProntoUI/bin/Debug/ProntoUI.exe
+```powershell
+Get-ChildItem -Path UI -Filter *.exe -Recurse -File |
+  Where-Object { $_.DirectoryName -like '*\bin\Debug' }
 ```
 
 Depuis l'UI, les captures sont copiées dans `reconstruction/captures/captures`.
